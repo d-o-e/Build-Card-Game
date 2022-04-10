@@ -7,26 +7,21 @@
 public class CardGameModel {
    private static final int MAX_PLAYERS = 20;
    private int numPlayers = 2;
-   Card[] playedCards = new Card[numPlayers]; //cards on the table
+   private Card[] playedCards = new Card[numPlayers]; //cards on the table
    private int numPacks = 1;            // # standard 52-card packs per deck
    private int numJokersPerPack = 2; // if 2 per pack & 3 packs per deck, get 6
-   private int numUnusedCardsPerPack = 0;  // # cards removed from each pack
+   private int numUnusedCardsPerPack;  // # cards removed from each pack
    private int numCardsPerHand = 7;        // # cards to deal each player
-   Card[] winningCards = new Card[numPlayers * numCardsPerHand]; //stores matched cards
    private Deck deck;               // holds the initial full deck and gets
    private Hand[] handsOfPlayers; // one Hand for each player
-   private int[] scoreboard;
+   private int[] passCount;
    private Card[] unusedCardsPerPack;
-   private boolean playerFirst = false;
 
    // constructor overload/default for game like bridge
    public CardGameModel() {
       int k;
-      scoreboard = new int[numPlayers];
-      // filter bad values
+      passCount = new int[numPlayers];
       numUnusedCardsPerPack = 0;
-      // one of many ways to assure at least one full deal to all players
-      numCardsPerHand = 7;
 
       // allocate
       this.unusedCardsPerPack = new Card[numUnusedCardsPerPack];
@@ -44,21 +39,12 @@ public class CardGameModel {
    }
 
    /**
-    * updates the score comparing 2 cards suits on table
+    * updates the score for playerID
     *
     * @param playerID
     */
-   void updateScore(int playerID) {
-      int index = 0;
-      int otherID = (playerID == 1 ? 0 : 1);
-      while (winningCards[index] != null) {
-         index++;
-         if (index >= winningCards.length) return;
-      }
-      if (playedCards[0].getSuit() == playedCards[1].getSuit()) {
-         System.arraycopy(playedCards, 0, winningCards, index, playedCards.length);
-         scoreboard[playerID]++;
-      } else scoreboard[otherID]++;
+   public void updatePassCounter(int playerID) {
+      passCount[playerID]++;
    }
 
    public Hand getHand(int k) {
@@ -119,7 +105,7 @@ public class CardGameModel {
 
    }
 
-   boolean takeCard(int playerIndex) {
+   private boolean takeCard(int playerIndex) {
       // returns false if either argument is bad
       if (playerIndex < 0 || playerIndex > numPlayers - 1 || deck == null)
          return false;
@@ -131,17 +117,14 @@ public class CardGameModel {
    }
 
    public int getTotalScoreOfPlayer(int playerID) {
-      return scoreboard[playerID];
+      return passCount[playerID];
    }
 
-   public String getWinningCardsString() {
-      StringBuilder winner = new StringBuilder("");
-      for (int i = 0; i < winningCards.length; i++) {
-         if (winningCards[i] == null) break;
-         winner.append(winningCards[i]);
-         winner.append((i % 2 != 0) ? '\n' : " - ");
-      }
-      return winner.toString();
+   public int cardsLeftInDeck() {
+      return deck.getNumCards();
    }
 
+   public Card[] cardsOnTable() {
+      return playedCards;
+   }
 }
