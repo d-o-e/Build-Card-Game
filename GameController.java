@@ -75,7 +75,6 @@ class GameController {
       }
 
       model.playedCards[0] = playCard(0, cardIndex);
-      view.removeFromPlayArea(0);
       view.addToPlayArea(model.playedCards[0], 0);
       view.removeFromComputerHand(0);
       if (Assign6.playerFirst) {
@@ -114,7 +113,6 @@ class GameController {
          JButton clickedCard = (JButton) event.getSource();
          if (clickedCard == null) return;
          int cardIndex = view.findIndexOfCard(clickedCard.getIcon());
-         view.removeFromPlayArea(1);
          view.addToPlayArea(findCard(1, cardIndex), 1);
          model.playedCards[1] = model.playCard(1, cardIndex);
          view.removeFromPlayerHand(cardIndex);

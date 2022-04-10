@@ -145,11 +145,9 @@ public class CardTableView extends JFrame {
       return new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
    }
 
-   public void removeFromPlayArea(int index) {
-      if (pnlPlayArea != null) this.pnlPlayArea.remove(index);
-   }
-
    public void addToPlayArea(Card card, int index) {
+      if (pnlPlayArea == null) return;
+      pnlPlayArea.remove(index);
       pnlPlayArea.add(makeLabelFromCard(card), index);
    }
 
