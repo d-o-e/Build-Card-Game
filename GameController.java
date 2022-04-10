@@ -14,7 +14,6 @@ class GameController {
    private boolean clockStopped = true;
    private GameTimer timer;
 
-
    public GameController() {
    }
 
@@ -34,13 +33,9 @@ class GameController {
       computerScore = model.getTotalScoreOfPlayer(0);
       playerScore = model.getTotalScoreOfPlayer(1);
       StringBuilder winner = new StringBuilder("Winner is ");
-      winner.append((playerScore > computerScore) ? "Player" : "Computer");
-      winner.append('\n');
-      winner.append("Player : ").append(playerScore).append("   Computer : ");
-      winner.append(computerScore).append('\n');
-      winner.append("Matched Suits: \n");
-      winner.append(model.getWinningCardsString());
-
+      winner.append((playerScore > computerScore) ? "Player" : "Computer")
+            .append('\n').append("Player : ").append(playerScore)
+            .append(" Computer : ").append(computerScore).append('\n');
       JOptionPane scoreboard = new JOptionPane(winner,
             JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
       JDialog dialog = scoreboard.createDialog("Game Over");
@@ -50,10 +45,6 @@ class GameController {
 
    public CardButtonListener getListener() {
       return new CardButtonListener();
-   }
-
-   public TimerButtonListener getTimerListener() {
-      return new TimerButtonListener();
    }
 
    public Card findCard(int playerID, int cardIndex) {
@@ -69,24 +60,16 @@ class GameController {
     * if it can't will play random card
     */
    public void computerPlay() {
+      int indexToPlay, indexToPut = 0;
       Hand compHand = model.getHand(0);
-      int cardIndex = Assign6.random.nextInt(compHand.getNumCards());
-      if (model.playedCards[1] != null) {
-         for (int i = 0; i < compHand.getNumCards(); i++) {
-            if (compHand.inspectCard(i).getSuit() == model.playedCards[1].getSuit()) {
-               cardIndex = i;
-            }
-         }
-      }
-
-      model.playedCards[0] = playCard(0, cardIndex);
-      view.removeFromPlayArea(0);
-      view.addToPlayArea(model.playedCards[0], 0);
+      Card[] playAreaCards = model.cardsOnTable();
+      // cardIndex to be played random for now
+      indexToPlay = Assign6.random.nextInt(compHand.getNumCards());
+      indexToPut = Assign6.random.nextInt(2);
+      // TODO: 4/10/2022 computer Logical play
+      playAreaCards[indexToPut] = playCard(0, indexToPlay);
+      view.addToPlayArea(compHand.playCard(indexToPlay), indexToPut);
       view.removeFromComputerHand(0);
-      if (Assign6.playerFirst) {
-         model.updateScore(0);
-         if (view.getCardCountFromComputerPnl() == 0) endTheGame();
-      }
       view.validate();
       view.repaint();
    }
@@ -105,6 +88,23 @@ class GameController {
       timer.start();
    }
 
+   public void flipClockSwitch() {
+      clockStopped = !clockStopped;
+   }
+
+   public void playerPassed(int playerID) {
+      model.updatePassCounter(playerID);
+   }
+
+   public int retrieveScore(int playerID) {
+      return model.getTotalScoreOfPlayer(playerID);
+   }
+
+   public int cardsLeft() {
+      return model.cardsLeftInDeck();
+   }
+
+
    /**
     * Inner Action Listener class to listen for card selections
     */
@@ -115,28 +115,14 @@ class GameController {
          JButton clickedCard = (JButton) event.getSource();
          if (clickedCard == null) return;
          int cardIndex = view.findIndexOfCard(clickedCard.getIcon());
-         view.removeFromPlayArea(1);
-         view.addToPlayArea(findCard(1, cardIndex), 1);
-         model.playedCards[1] = model.playCard(1, cardIndex);
+         view.addToPlayArea(findCard(1, cardIndex), Assign6.random.nextInt(2));
+         model.cardsOnTable()[1] = model.playCard(1, cardIndex);
          view.removeFromPlayerHand(cardIndex);
-
-         if (!Assign6.playerFirst) {
-            model.updateScore(1);
-            if (view.getCardCountFromPlayerPnl() == 0) endTheGame();
-         }
          computerPlay();
          view.validate();
          view.repaint();
       }
 
-   }
-
-   class TimerButtonListener implements ActionListener {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-         clockStopped = !clockStopped;
-         view.toggleTimerButton();
-      }
    }
 
    class GameTimer extends Thread {
