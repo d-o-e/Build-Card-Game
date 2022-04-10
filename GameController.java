@@ -14,7 +14,6 @@ class GameController {
    private boolean clockStopped = true;
    private GameTimer timer;
 
-
    public GameController() {
    }
 
@@ -50,10 +49,6 @@ class GameController {
 
    public CardButtonListener getListener() {
       return new CardButtonListener();
-   }
-
-   public TimerButtonListener getTimerListener() {
-      return new TimerButtonListener();
    }
 
    public Card findCard(int playerID, int cardIndex) {
@@ -105,6 +100,10 @@ class GameController {
       timer.start();
    }
 
+   public void flipClockSwitch() {
+      clockStopped = !clockStopped;
+   }
+
    /**
     * Inner Action Listener class to listen for card selections
     */
@@ -129,14 +128,6 @@ class GameController {
          view.repaint();
       }
 
-   }
-
-   class TimerButtonListener implements ActionListener {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-         clockStopped = !clockStopped;
-         view.toggleTimerButton();
-      }
    }
 
    class GameTimer extends Thread {

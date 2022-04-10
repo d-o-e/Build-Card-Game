@@ -108,7 +108,10 @@ public class CardTableView extends JFrame {
 
       // ADD LABELS TO PANELS -----------------------------------------
       pnlTimer.add(timerDisplay);
-      timerButton.addActionListener(controller.getTimerListener());
+      timerButton.addActionListener(action -> {
+         controller.flipClockSwitch();
+         toggleTimerButton();
+      });
       pnlTimer.add(timerButton);
 
       for (JLabel playedCard : playedCardLabels) {
