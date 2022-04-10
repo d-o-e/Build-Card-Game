@@ -340,9 +340,7 @@ class Deck {
    public boolean removeCard(Card card) {
       for (Card tempCard : cards) {
          if (tempCard.equals(card)) {
-            tempCard = cards[topCard];
-            cards[topCard] = null;
-            topCard--;
+            cards[topCard--] = null;
             return true;
          }
       }
