@@ -3,8 +3,8 @@ import java.awt.*;
 import java.io.File;
 
 public class CardTableView extends JFrame {
-   static final int WINDOW_WIDTH = 1280;
-   static final int WINDOW_HEIGHT = 720;
+   static final int WINDOW_WIDTH = 820;
+   static final int WINDOW_HEIGHT = 600;
    static final int MAX_CARDS_PER_HAND = 8;
    static final int MAX_PLAYERS = 3;
    public GameController controller;
@@ -27,6 +27,7 @@ public class CardTableView extends JFrame {
       // establish main frame in which program will run
       setTitle("Suits Match Card Table");
       setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+      setResizable(false);
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       setLocationRelativeTo(null);
 
@@ -126,6 +127,8 @@ public class CardTableView extends JFrame {
          pnlHumanHand.add(playerCard);
       }
 
+      pnlComputerHand.setPreferredSize(pnlComputerHand.getPreferredSize());
+      pnlHumanHand.setPreferredSize(pnlHumanHand.getPreferredSize());
       // show everything to the user
       this.setVisible(true);
    }
