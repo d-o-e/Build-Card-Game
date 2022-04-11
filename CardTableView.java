@@ -1,3 +1,9 @@
+/**
+ * Deniz Erisgen
+ * Assignment 6 Phase 3
+ * IDE: IntelliJ
+ **/
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
