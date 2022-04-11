@@ -57,18 +57,16 @@ class GameController {
     * if it can't will play random card
     */
    public void computerPlay() {
-      int indexToPlay, indexToPut = 0;
+      int indexToPlay, indexToPut;
       Hand compHand = model.getHand(0);
-      Card[] playAreaCards = model.cardsOnTable();
-      // cardIndex to be played random for now
+      Card[] cardsOnPlayArea = model.getCardsOnStacks();
+
+      // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
       indexToPlay = Assign6.random.nextInt(compHand.getNumCards());
       indexToPut = Assign6.random.nextInt(3);
-      // TODO: 4/10/2022 computer Logical play
-      playAreaCards[indexToPut] = playCard(0, indexToPlay);
+      cardsOnPlayArea[indexToPut] = playCard(0, indexToPlay);
       view.addToPlayArea(compHand.playCard(indexToPlay), indexToPut);
       view.removeFromComputerHand(0);
-      view.validate();
-      view.repaint();
    }
 
    public Card playCard(int playerID, int cardIndex) {
@@ -118,7 +116,8 @@ class GameController {
             else CardButtonListener.firstButtonSelected = true;
          } else if (CardButtonListener.firstButtonSelected) {
             CardButtonListener.firstButtonSelected = false;
-            System.out.println("heyyy put the card here");
+            // TODO: 4/11/2022 find the index to put the card
+
             view.deselectAllButtons();
          }
       }
