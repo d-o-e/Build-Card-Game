@@ -1,3 +1,9 @@
+/**
+ * Deniz Erisgen
+ * Assignment 6 Phase 3
+ * IDE: IntelliJ
+ **/
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
@@ -20,13 +26,12 @@ public class CardTableView extends JFrame {
    private int time = 0;
 
    public CardTableView() {
-
       controller = new GameController();
       GUICard.loadCardIcons();
       // establish main frame in which program will run
       setTitle("Suits Match Card Table");
       setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-//      setResizable(false);
+      setResizable(false);
       setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
       setLocationRelativeTo(null);
 

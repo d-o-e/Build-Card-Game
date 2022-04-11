@@ -1,11 +1,10 @@
 /**
  * Deniz Erisgen
- * Assignment 6 Phase 2
+ * Assignment 6 Phase 3
  * IDE: IntelliJ
  **/
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
