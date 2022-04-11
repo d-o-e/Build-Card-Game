@@ -111,7 +111,6 @@ public class CardTableView extends JFrame {
       for (int i = 0; i < numCardsPerHand; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
          humanCardLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
-         humanCardLabels[i].addActionListener(controller.getCardListener());
       }
 
       // initializing placeholder cards icons and labels
@@ -167,7 +166,9 @@ public class CardTableView extends JFrame {
    }
 
    public JToggleButton makeToggleButtonFromCard(Card card) {
-      return new JToggleButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      JToggleButton newCardButton = new JToggleButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      newCardButton.addActionListener(controller.getCardListener());
+      return newCardButton;
    }
 
    public void addToPlayArea(Card card, int index) {

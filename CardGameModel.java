@@ -76,7 +76,6 @@ public class CardGameModel {
    public Hand getHand(int k) {
       // on error return automatic empty hand
       if (k < 0 || k >= numPlayers) {
-         System.err.println("hand is empty");
          return new Hand();
       }
       return handsOfPlayers[k];

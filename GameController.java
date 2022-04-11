@@ -66,7 +66,7 @@ class GameController {
    }
 
    public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
-      // TODO: 4/11/2022 add  validation method
+      // TODO: 4/11/2022 add validation method
       if (playerID == 0) view.removeFromComputerHand();
       Card cardToPlay = model.playCard(playerID, cardIndex);
       view.addToPlayArea(cardToPlay, indexTo);
@@ -122,12 +122,10 @@ class GameController {
                firstButtonIndex = -1;
             } else {
                firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
-               System.err.println(firstButtonIndex);
             }
          } else if (CardButtonListener.firstButtonIndex != -1) {
             JButton x = (JButton) event.getSource();
             int stackIndex = view.findIndexOfCard(x.getIcon(), true);
-            System.out.println("index of stack to put is :" + stackIndex);
             playCardTo(1, firstButtonIndex, stackIndex);
             firstButtonIndex = -1;
             view.deselectAllButtons();
