@@ -5,7 +5,6 @@
  **/
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -113,9 +112,10 @@ class GameController {
 
       @Override
       public void actionPerformed(ActionEvent event) {
-         JButton clickedCard = (JButton) event.getSource();
+         JToggleButton clickedCard = (JToggleButton) event.getSource();
          if (clickedCard == null) return;
-         clickedCard.setBackground(Color.gray);
+         clickedCard.isSelected();
+//         clickedCard.setBackground(Color.gray);
          int cardIndex = view.findIndexOfCard(clickedCard.getIcon());
 
          view.addToPlayArea(findCard(1, cardIndex), Assign6.random.nextInt(2));
@@ -125,6 +125,7 @@ class GameController {
          view.validate();
          view.repaint();
       }
+
 
    }
 
