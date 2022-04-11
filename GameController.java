@@ -111,7 +111,9 @@ class GameController {
    class CardButtonListener implements ActionListener {
       @Override
       public void actionPerformed(ActionEvent event) {
-         // TODO: 4/10/2022 design a way that it works with stacks adn cards
+         // TODO: 4/10/2022 design a way that it works with stacks and cards
+         // if it's a toggle button
+         if (event.getSource() instanceof JToggleButton) System.out.println("TTTTTTTTTTT");
       }
 
 

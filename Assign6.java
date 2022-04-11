@@ -241,7 +241,6 @@ class Deck {
 
    public Deck() {
       if (masterPack == null) allocateMasterPack();
-      init(1);
    }
 
    public Deck(int numPacks) {
@@ -312,6 +311,7 @@ class Deck {
     */
    public void init(int numPacks) {
       if (numPacks == 0) numPacks = 1;
+
       if (numPacks > MAX_CARDS_PACK) numPacks = 6;
       topCard = (52 * numPacks) + 4; // add spots for jokers
       cards = new Card[topCard];
@@ -331,16 +331,17 @@ class Deck {
       int count = 0;
       for (Card tempCard : cards) {
          if (tempCard.equals(card)) count++;
+         if (count > MAX_CARDS_PACK) return false;
       }
-      if (count > MAX_CARDS_PACK) return false;
-      else cards[--topCard] = new Card(card);
+      cards[--topCard] = new Card(card);
       return true;
    }
 
    public boolean removeCard(Card card) {
-      for (Card tempCard : cards) {
-         if (tempCard.equals(card)) {
-            cards[topCard--] = null;
+      for (int i = 0; i < cards.length; i++) {
+         if (cards[i].equals(card)) {
+            System.arraycopy(cards, i + 1, cards, i, cards.length - i - 1);
+            cards[--topCard] = null;
             return true;
          }
       }

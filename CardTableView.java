@@ -21,7 +21,7 @@ public class CardTableView extends JFrame {
    private JLabel[] computerLabels;
    private JLabel[] scoreboardLabels;
    private JLabel timerDisplay;
-   public JButton[] playedCardLabels;
+   public JButton[] playedCardStacks;
    private JToggleButton[] humanLabels;
    private JButton timerButton, passRoundButton;
    private int time = 0;
@@ -38,7 +38,7 @@ public class CardTableView extends JFrame {
 
       computerLabels = new JLabel[numCardsPerHand];
       scoreboardLabels = new JLabel[(numPlayers + 1) * 2];
-      playedCardLabels = new JButton[3];
+      playedCardStacks = new JButton[3];
       humanLabels = new JToggleButton[numCardsPerHand];
       passRoundButton = new JButton("PASS");
 
@@ -92,12 +92,10 @@ public class CardTableView extends JFrame {
       pnlScoreBoard.setBorder(BorderFactory.createTitledBorder("Scoreboard"));
       pnlTimeAndScore.add(pnlScoreBoard);
 
-
       gridConstraints.gridx = 0;
       gridConstraints.gridy = 2;
       gridConstraints.ipady = 0;
       add(pnlTimeAndScore, gridConstraints);
-
 
       // Bottom JFrame : Player Hand
       gridConstraints.gridx = 0;
@@ -117,9 +115,9 @@ public class CardTableView extends JFrame {
       }
 
       // initializing placeholder cards icons and labels
-      for (int i = 0; i < playedCardLabels.length; i++) {
-         playedCardLabels[i] = new JButton(GUICard.getBackCardIcon());
-         playedCardLabels[i].addActionListener(controller.getCardListener());
+      for (int i = 0; i < playedCardStacks.length; i++) {
+         playedCardStacks[i] = new JButton(GUICard.getBackCardIcon());
+         playedCardStacks[i].addActionListener(controller.getCardListener());
       }
 
       // initializing Scoreboard labels
@@ -146,7 +144,7 @@ public class CardTableView extends JFrame {
 //      timerDisplay.setBorder(new EmptyBorder(0, 5, 0, 0));
       pnlTimer.add(timerDisplay);
 
-      for (JButton playedCard : playedCardLabels) pnlPlayArea.add(playedCard);
+      for (JButton playedCard : playedCardStacks) pnlPlayArea.add(playedCard);
 
       for (JLabel scoreLabels : scoreboardLabels) pnlScoreBoard.add(scoreLabels);
 
@@ -163,7 +161,9 @@ public class CardTableView extends JFrame {
    }
 
    public JButton makeButtonFromCard(Card card) {
-      return new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      JButton newStackButton = new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      newStackButton.addActionListener(controller.getCardListener());
+      return newStackButton;
    }
 
    public JToggleButton makeToggleButtonFromCard(Card card) {
