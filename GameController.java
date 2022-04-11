@@ -62,7 +62,7 @@ class GameController {
       Card[] playAreaCards = model.cardsOnTable();
       // cardIndex to be played random for now
       indexToPlay = Assign6.random.nextInt(compHand.getNumCards());
-      indexToPut = Assign6.random.nextInt(2);
+      indexToPut = Assign6.random.nextInt(3);
       // TODO: 4/10/2022 computer Logical play
       playAreaCards[indexToPut] = playCard(0, indexToPlay);
       view.addToPlayArea(compHand.playCard(indexToPlay), indexToPut);
@@ -114,11 +114,12 @@ class GameController {
       public void actionPerformed(ActionEvent event) {
          // TODO: 4/10/2022 design a way that it works with stacks and cards
          if (event.getSource() instanceof JToggleButton){
-            if (CardButtonListener.firstButtonSelected) return;
+            if (CardButtonListener.firstButtonSelected) view.deselectAllButtons();
             else CardButtonListener.firstButtonSelected = true;
          } else if (CardButtonListener.firstButtonSelected) {
             CardButtonListener.firstButtonSelected = false;
             System.out.println("heyyy put the card here");
+            view.deselectAllButtons();
          }
       }
 

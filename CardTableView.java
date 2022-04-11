@@ -229,6 +229,14 @@ public class CardTableView extends JFrame {
       playerPassCount.setText(String.valueOf(controller.retrieveScore(1)));
    }
 
+   public void deselectAllButtons() {
+      for (JToggleButton buttons : humanLabels) {
+         buttons.setSelected(false);
+      }/*
+      validate();
+      repaint();*/
+   }
+
    static class GUICard {
       // card Icons, A thru K + joker
       private static final Icon[][] iconCards = new ImageIcon[14][4];
