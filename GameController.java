@@ -109,21 +109,9 @@ class GameController {
     * Inner Action Listener class to listen for card selections
     */
    class CardButtonListener implements ActionListener {
-
       @Override
       public void actionPerformed(ActionEvent event) {
-         JToggleButton clickedCard = (JToggleButton) event.getSource();
-         if (clickedCard == null) return;
-         clickedCard.isSelected();
-//         clickedCard.setBackground(Color.gray);
-         int cardIndex = view.findIndexOfCard(clickedCard.getIcon());
-
-         view.addToPlayArea(findCard(1, cardIndex), Assign6.random.nextInt(2));
-         model.cardsOnTable()[1] = model.playCard(1, cardIndex);
-         view.removeFromPlayerHand(cardIndex);
-         computerPlay();
-         view.validate();
-         view.repaint();
+         // TODO: 4/10/2022 design a way that it works with stacks adn cards
       }
 
 
