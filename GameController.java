@@ -58,19 +58,20 @@ class GameController {
     */
    public void computerPlay() {
       int indexToPlay, indexToPut;
-      Hand compHand = model.getHand(0);
       Card[] cardsOnPlayArea = model.getCardsOnStacks();
-
       // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
-      indexToPlay = Assign6.random.nextInt(compHand.getNumCards());
+      indexToPlay = Assign6.random.nextInt(model.getHand(0).getNumCards());
       indexToPut = Assign6.random.nextInt(3);
-      cardsOnPlayArea[indexToPut] = playCard(0, indexToPlay);
-      view.addToPlayArea(compHand.playCard(indexToPlay), indexToPut);
-      view.removeFromComputerHand(0);
+      playCardTo(0, indexToPlay, indexToPut);
    }
 
-   public Card playCard(int playerID, int cardIndex) {
-      return model.playCard(playerID, cardIndex);
+   public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
+      // TODO: 4/11/2022 add  validation method
+      if (playerID == 0) view.removeFromComputerHand();
+      Card cardToPlay = model.playCard(playerID, cardIndex);
+      view.addToPlayArea(cardToPlay, indexTo);
+      model.getCardsOnStacks()[indexTo] = cardToPlay;
+      return true;
    }
 
    public void initView() {
@@ -103,26 +104,37 @@ class GameController {
       return new CardButtonListener();
    }
 
+   public int playerCardsLeft(int playerID) {
+      return model.getHand(playerID).getNumCards();
+   }
+
    /**
     * Inner Action Listener class to listen for card selections
     */
    class CardButtonListener implements ActionListener {
-      static boolean firstButtonSelected = false;
+      static int firstButtonIndex = -1;
+
       @Override
       public void actionPerformed(ActionEvent event) {
-         // TODO: 4/10/2022 design a way that it works with stacks and cards
-         if (event.getSource() instanceof JToggleButton){
-            if (CardButtonListener.firstButtonSelected) view.deselectAllButtons();
-            else CardButtonListener.firstButtonSelected = true;
-         } else if (CardButtonListener.firstButtonSelected) {
-            CardButtonListener.firstButtonSelected = false;
-            // TODO: 4/11/2022 find the index to put the card
-
+         if (event.getSource() instanceof JToggleButton) {
+            if (CardButtonListener.firstButtonIndex != -1) {
+               view.deselectAllButtons();
+               firstButtonIndex = -1;
+            } else {
+               firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
+               System.err.println(firstButtonIndex);
+            }
+         } else if (CardButtonListener.firstButtonIndex != -1) {
+            JButton x = (JButton) event.getSource();
+            int stackIndex = view.findIndexOfCard(x.getIcon(), true);
+            System.out.println("index of stack to put is :" + stackIndex);
+            playCardTo(1, firstButtonIndex, stackIndex);
+            firstButtonIndex = -1;
             view.deselectAllButtons();
          }
+         view.validate();
+         view.repaint();
       }
-
-
    }
 
    class GameTimer extends Thread {

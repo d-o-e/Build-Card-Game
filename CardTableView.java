@@ -10,8 +10,8 @@ import java.io.File;
 
 public class CardTableView extends JFrame {
    public GameController controller;
-   private final int WINDOW_WIDTH = 900;
-   private final int WINDOW_HEIGHT = 520;
+   private final int WINDOW_WIDTH = 860;
+   private final int WINDOW_HEIGHT = 540;
    private final int numCardsPerHand = 7;
    private final int numPlayers = 2;
 
@@ -22,7 +22,7 @@ public class CardTableView extends JFrame {
    private JLabel[] scoreboardLabels;
    private JLabel timerDisplay;
    public JButton[] playedCardStacks;
-   private JToggleButton[] humanLabels;
+   private JToggleButton[] humanCardLabels;
    private JButton timerButton, passRoundButton;
    private int time = 0;
 
@@ -39,7 +39,7 @@ public class CardTableView extends JFrame {
       computerLabels = new JLabel[numCardsPerHand];
       scoreboardLabels = new JLabel[(numPlayers + 1) * 2];
       playedCardStacks = new JButton[3];
-      humanLabels = new JToggleButton[numCardsPerHand];
+      humanCardLabels = new JToggleButton[numCardsPerHand];
       passRoundButton = new JButton("PASS");
 
       timerDisplay = new JLabel();
@@ -110,8 +110,8 @@ public class CardTableView extends JFrame {
 
       for (int i = 0; i < numCardsPerHand; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
-         humanLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
-         humanLabels[i].addActionListener(controller.getCardListener());
+         humanCardLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
+         humanCardLabels[i].addActionListener(controller.getCardListener());
       }
 
       // initializing placeholder cards icons and labels
@@ -152,7 +152,7 @@ public class CardTableView extends JFrame {
 
       for (JLabel computerCard : computerLabels) pnlComputerHand.add(computerCard);
 
-      for (JToggleButton playerCard : humanLabels) pnlHumanHand.add(playerCard);
+      for (JToggleButton playerCard : humanCardLabels) pnlHumanHand.add(playerCard);
 
       pnlComputerHand.setPreferredSize(pnlComputerHand.getPreferredSize());
       pnlHumanHand.setPreferredSize(pnlHumanHand.getPreferredSize());
@@ -172,35 +172,46 @@ public class CardTableView extends JFrame {
 
    public void addToPlayArea(Card card, int index) {
       if (pnlPlayArea == null) return;
+      JButton playedCard = makeButtonFromCard(card);
+      removeFromPlayerHand(findIndexOfCard(playedCard.getIcon(), false));
       pnlPlayArea.remove(index);
-      pnlPlayArea.add(makeButtonFromCard(card), index);
+      pnlPlayArea.add(playedCard, index);
+      playedCardStacks[index] = playedCard;
    }
 
-   public void removeFromComputerHand(int index) {
-      pnlComputerHand.remove(index);
+   public void removeFromComputerHand() {
+      pnlComputerHand.remove(0);
    }
 
    public void removeFromPlayerHand(int index) {
       pnlHumanHand.remove(index);
+      humanCardLabels[index] = null;
+      System.arraycopy(humanCardLabels, index + 1, humanCardLabels, index, humanCardLabels.length - index - 1);
+      humanCardLabels[humanCardLabels.length - 1] = null;
    }
 
    /**
     * Searches for cards icon in human buttons array
     *
-    * @param cardIcon icon of the card that was selected
+    * @param cardIcon      icon of the card that was selected
+    * @param searchInStack pass in true to seach in stack
     * @return index of the card, if not found returns -1
     */
-   int findIndexOfCard(Icon cardIcon) {
-      int foundIndex = -1;
-      for (int i = 0; i < humanLabels.length; i++) {
-         if (humanLabels[i].getIcon().equals(cardIcon)) {
-            foundIndex = i;
-            System.arraycopy(humanLabels, i + 1, humanLabels, i, humanLabels.length - foundIndex - 1);
-            humanLabels[humanLabels.length - 1] = null;
-            return foundIndex;
+   int findIndexOfCard(Icon cardIcon, boolean searchInStack) {
+      if (searchInStack) {
+         for (int i = 0; i < playedCardStacks.length; i++) {
+            if (playedCardStacks[i].getIcon().equals(cardIcon)) {
+               return i;
+            }
+         }
+      } else {
+         for (int i = 0; i < humanCardLabels.length; i++) {
+            if (humanCardLabels[i].getIcon().equals(cardIcon)) {
+               return i;
+            }
          }
       }
-      return foundIndex;
+      return -1;
    }
 
    public void toggleTimerButton() {
@@ -230,11 +241,11 @@ public class CardTableView extends JFrame {
    }
 
    public void deselectAllButtons() {
-      for (JToggleButton buttons : humanLabels) {
-         buttons.setSelected(false);
-      }/*
-      validate();
-      repaint();*/
+      if (humanCardLabels != null) {
+         for (int i = 0; i < controller.playerCardsLeft(1); i++) {
+            humanCardLabels[i].setSelected(false);
+         }
+      }
    }
 
    static class GUICard {

@@ -279,10 +279,6 @@ class Hand {
     * @return last Card object or a null Card
     */
    public Card playCard(int cardIndex) {
-      if (numCards == 0 || cardIndex > numCards
-            || inspectCard(cardIndex).getCardError()) {
-         return new Card('M', Card.Suit.spades);
-      }
       Card playedCard = new Card(myCards[cardIndex]);
       System.arraycopy(myCards, cardIndex + 1, myCards, cardIndex, numCards - cardIndex);
       myCards[--numCards] = null;

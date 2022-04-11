@@ -15,8 +15,8 @@ class Assign6 {
       CardTableView view = new CardTableView();
       GameController SuitMatch = new GameController(model, view);
       SuitMatch.initView();
-      playerFirst = SuitMatch.playerStarts(); // ask user for who will start
-      if (!playerFirst) SuitMatch.computerPlay();
+//      playerFirst = SuitMatch.playerStarts(); // ask user for who will start
+//      if (!playerFirst) SuitMatch.computerPlay();
       SuitMatch.startTimer();
    }
 }
