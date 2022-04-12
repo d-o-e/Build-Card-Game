@@ -57,19 +57,18 @@ class GameController {
     * if it can't will play random card
     */
    public void computerPlay() {
-      int indexToPlay, indexToPut;
-      Card[] cardsOnPlayArea = model.getCardsOnStacks();
+      int[] indexes = model.lookForAMove();
+      System.out.println("canplay" + indexes);
       // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
-      indexToPlay = Assign6.random.nextInt(model.getHand(0).getNumCards());
-      indexToPut = Assign6.random.nextInt(3);
-      playCardTo(0, indexToPlay, indexToPut);
+      if (indexes == null) model.updatePassCounter(0);
+      playCardTo(0, indexes[0], indexes[1]);
+
    }
 
    public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
       // TODO: 4/11/2022 add validation method
-      if (playerID == 0) view.removeFromComputerHandPanel();
       Card cardToPlay = model.playCard(playerID, cardIndex);
-      view.addToPlayArea(cardToPlay, indexTo);
+      view.addToPlayArea(playerID, cardToPlay, indexTo);
       model.getCardsOnStacks()[indexTo] = cardToPlay;
       if (cardsLeft() > 0) view.addToPlayerHand(model.dealACardTo(playerID));
       return true;
@@ -127,7 +126,8 @@ class GameController {
          } else if (CardButtonListener.firstButtonIndex != -1) {
             Icon stackIcon = ((JButton) event.getSource()).getIcon();
             int stackIndex = view.findIndexOfCard(stackIcon, true);
-            if (stackIcon.toString().contains("BK") || model.isAValidMove(firstButtonIndex, stackIndex)) {
+            if (stackIcon.toString().contains("BK") ||
+                  model.isAValidMove(firstButtonIndex, stackIndex)) {
                playCardTo(1, firstButtonIndex, stackIndex);
             }
             firstButtonIndex = -1;

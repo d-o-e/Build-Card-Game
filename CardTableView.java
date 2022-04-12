@@ -169,10 +169,12 @@ public class CardTableView extends JFrame {
       return newCardButton;
    }
 
-   public void addToPlayArea(Card card, int index) {
+   public void addToPlayArea(int playerID, Card card, int index) {
       if (pnlPlayArea == null) return;
       JButton playedCard = makeButtonFromCard(card);
-      removeFromPlayerHand(findIndexOfCard(playedCard.getIcon(), false));
+      if (playerID == 0) removeFromComputerHandPanel();
+      else removeFromPlayerHand(findIndexOfCard(playedCard.getIcon(), false));
+
       pnlPlayArea.remove(index);
       pnlPlayArea.add(playedCard, index);
       playedCardStacks[index] = playedCard;
@@ -186,7 +188,8 @@ public class CardTableView extends JFrame {
    }
 
    public void removeFromComputerHandPanel() {
-      pnlComputerHand.remove(0);
+      pnlComputerHand.remove(computerLabels.length - 1);
+      computerLabels[computerLabels.length - 1] = null;
    }
 
    public void removeFromPlayerHand(int index) {

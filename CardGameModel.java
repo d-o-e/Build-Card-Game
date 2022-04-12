@@ -88,7 +88,7 @@ public class CardGameModel {
          //Creates a card that does not work
          return new Card('M', Card.Suit.spades);
       }
-// TODO: 4/11/2022 put it into the stacks 
+      // TODO: 4/11/2022 put it into the stacks
       // return the card played
       return handsOfPlayers[playerIndex].playCard(cardIndex);
    }
@@ -132,11 +132,66 @@ public class CardGameModel {
          if (playedCard == Card.valueRanks[i]) cardValueIndex = i;
       }
       // TODO: 4/11/2022 more rules can be determined
+      return rule(cardValueIndex, stackValueIndex);
+   }
+
+   private boolean rule(int cardValueIndex, int stackValueIndex) {
       if (cardValueIndex == 0 || stackValueIndex == 0) return true; //joker
       else if (stackValueIndex == (cardValueIndex + 1) || stackValueIndex == (cardValueIndex - 1)) return true;
       else if (stackValueIndex == 13 && cardValueIndex == 1) return true;
       else return (stackValueIndex == 1 && cardValueIndex == 13);
    }
+
+   private Card[] getComputerCardsArray() {
+      Card[] compHand = new Card[getHand(0).getNumCards()];
+      for (int i = 0; i < getHand(0).getNumCards(); i++) {
+         compHand[i] = new Card(getHand(0).inspectCard(i));
+      }
+      return compHand;
+   }
+
+   private int[] getRankValuesIndexes(Card[] cards) {
+      char[] charValues = new char[cards.length];
+      for (int i = 0; i < charValues.length; i++) {
+         if (cards[i] == null) charValues[i] = 'X';
+         else charValues[i] = cards[i].getValue();
+      }
+
+      int[] valueIndexes = new int[cards.length];
+      for (int i = 0; i < valueIndexes.length; i++) {
+         for (int j = 0; j < Card.valueRanks.length; j++) {
+            if (Card.valueRanks[j] == charValues[i]) valueIndexes[i] = j;
+         }
+      }
+      return valueIndexes;
+   }
+
+   public int[] lookForAMove() {
+      int[] stackIndexes = getRankValuesIndexes(cardsOnStacks);
+      int[] possibleMoves = new int[2];
+
+      for (int index : stackIndexes) {
+         if (index == 0) {
+            possibleMoves[0] = Assign6.random.nextInt(getHand(0).getNumCards());
+            possibleMoves[1] = index;
+            return possibleMoves;
+         }
+      }
+
+      int[] cardIndexes = getRankValuesIndexes(getComputerCardsArray());
+
+      for (int i = 0; i < stackIndexes.length; i++) {
+         for (int j = 0; j < cardIndexes.length; j++) {
+            if (rule(cardIndexes[j], stackIndexes[i])) {
+               possibleMoves[0] = i;
+               possibleMoves[1] = j;
+               return possibleMoves;
+            }
+         }
+      }
+      return null;
+   }
+
 }
 
 class Card {
@@ -298,7 +353,7 @@ class Hand {
     */
    public Card playCard(int cardIndex) {
       Card playedCard = new Card(myCards[cardIndex]);
-      System.arraycopy(myCards, cardIndex + 1, myCards, cardIndex, numCards - cardIndex);
+      System.arraycopy(myCards, cardIndex + 1, myCards, cardIndex, numCards - cardIndex - 1);
       myCards[--numCards] = null;
       return playedCard;
    }
