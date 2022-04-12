@@ -123,13 +123,19 @@ public class CardGameModel {
    }
 
    public boolean isAValidMove(int firstButtonIndex, int stackIndex) {
-
-      Card playedCard = getHand(1).inspectCard(firstButtonIndex);
-      Card cardOnStack = cardsOnStacks[stackIndex];
-      System.out.println(playedCard.getValue());
-      System.out.println(cardOnStack.getValue());
-      return true;
-
+      char cardOnStack = cardsOnStacks[stackIndex].getValue();
+      char playedCard = getHand(1).inspectCard(firstButtonIndex).getValue();
+      int stackValueIndex, cardValueIndex;
+      stackValueIndex = cardValueIndex = -1;
+      for (int i = 0; i < Card.valueRanks.length; i++) {
+         if (cardOnStack == Card.valueRanks[i]) stackValueIndex = i;
+         if (playedCard == Card.valueRanks[i]) cardValueIndex = i;
+      }
+      // TODO: 4/11/2022 more rules can be determined
+      if (cardValueIndex == 0 || stackValueIndex == 0) return true; //joker
+      else if (stackValueIndex == (cardValueIndex + 1) || stackValueIndex == (cardValueIndex - 1)) return true;
+      else if (stackValueIndex == 13 && cardValueIndex == 1) return true;
+      else return (stackValueIndex == 1 && cardValueIndex == 13);
    }
 }
 
