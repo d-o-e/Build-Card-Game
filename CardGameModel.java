@@ -7,7 +7,7 @@ import java.util.Random;
  **/
 
 public class CardGameModel {
-   private static final int MAX_PLAYERS = 20;
+   public static final int MAX_CARD_COUNT = 7;
    private int numPlayers = 2;
    private Card[] cardsOnStacks = new Card[3]; //cards on the table
    private int numPacks = 1;            // # standard 52-card packs per deck
@@ -88,10 +88,9 @@ public class CardGameModel {
          //Creates a card that does not work
          return new Card('M', Card.Suit.spades);
       }
-
+// TODO: 4/11/2022 put it into the stacks 
       // return the card played
       return handsOfPlayers[playerIndex].playCard(cardIndex);
-
    }
 
    private boolean takeCard(int playerIndex) {
@@ -117,6 +116,11 @@ public class CardGameModel {
       return cardsOnStacks;
    }
 
+   public Card dealACardTo(int playerID) {
+      Card dealtCard = deck.dealCard();
+      handsOfPlayers[playerID].takeCard(dealtCard);
+      return dealtCard;
+   }
 
 }
 

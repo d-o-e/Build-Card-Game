@@ -67,18 +67,28 @@ class GameController {
 
    public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
       // TODO: 4/11/2022 add validation method
-      if (playerID == 0) view.removeFromComputerHand();
+      if (playerID == 0) view.removeFromComputerHandPanel();
       Card cardToPlay = model.playCard(playerID, cardIndex);
       view.addToPlayArea(cardToPlay, indexTo);
+      // TODO: 4/11/2022 move ito the playCard func
       model.getCardsOnStacks()[indexTo] = cardToPlay;
+      refillHands();
+      view.updateTable();
       return true;
+   }
+
+   private void refillHands() {
+      if (cardsLeft() > 0 && playerCardsLeft(0) < CardGameModel.MAX_CARD_COUNT)
+         view.addToPlayerHand(model.dealACardTo(0));
+      if (cardsLeft() > 0 && playerCardsLeft(1) < CardGameModel.MAX_CARD_COUNT)
+         view.addToPlayerHand(model.dealACardTo(1));
    }
 
    public void initView() {
       view.setupTheLayoutAndPanels();
    }
 
-   public void startTimer() {
+   void startTimer() {
       clockStopped = false;
       view.toggleTimerButton();
       timer.start();
@@ -88,11 +98,11 @@ class GameController {
       clockStopped = !clockStopped;
    }
 
-   public void playerPassed(int playerID) {
+   void playerPassed(int playerID) {
       model.updatePassCounter(playerID);
    }
 
-   public int retrieveScore(int playerID) {
+   int retrieveScore(int playerID) {
       return model.getTotalScoreOfPlayer(playerID);
    }
 
@@ -104,8 +114,12 @@ class GameController {
       return new CardButtonListener();
    }
 
-   public int playerCardsLeft(int playerID) {
+   int playerCardsLeft(int playerID) {
       return model.getHand(playerID).getNumCards();
+   }
+
+   private void checkForValidMove(int firstButtonIndex, int stackIndex) {
+
    }
 
    /**
@@ -126,6 +140,7 @@ class GameController {
          } else if (CardButtonListener.firstButtonIndex != -1) {
             JButton x = (JButton) event.getSource();
             int stackIndex = view.findIndexOfCard(x.getIcon(), true);
+            checkForValidMove(firstButtonIndex, stackIndex);
             playCardTo(1, firstButtonIndex, stackIndex);
             firstButtonIndex = -1;
             view.deselectAllButtons();
@@ -136,9 +151,7 @@ class GameController {
    }
 
    class GameTimer extends Thread {
-      public GameTimer() {
-         super();
-      }
+      private int time = 0;
 
       private void doNothing() {
          try {

@@ -18,8 +18,7 @@ public class CardTableView extends JFrame {
    // CarTable Panels
    private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea, pnlScoreBoard, pnlTimer, pnlTimeAndScore;
    //Label arrays that represent cards on window
-   private JLabel[] computerLabels;
-   private JLabel[] scoreboardLabels;
+   private JLabel[] computerLabels, scoreboardLabels;
    private JLabel timerDisplay;
    public JButton[] playedCardStacks;
    private JToggleButton[] humanCardLabels;
@@ -180,7 +179,12 @@ public class CardTableView extends JFrame {
       playedCardStacks[index] = playedCard;
    }
 
-   public void removeFromComputerHand() {
+   public void addToPlayerHand(Card deal) {
+
+      updateTable();
+   }
+
+   public void removeFromComputerHandPanel() {
       pnlComputerHand.remove(0);
    }
 
@@ -247,6 +251,24 @@ public class CardTableView extends JFrame {
             humanCardLabels[i].setSelected(false);
          }
       }
+   }
+
+   public void updateTable() {
+
+      for (int i = 0; i < controller.playerCardsLeft(0); i++) {
+         computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
+      }
+
+      for (int i = 0; i < controller.playerCardsLeft(1); i++) {
+         humanCardLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
+      }
+
+      for (JLabel computerCard : computerLabels) pnlComputerHand.add(computerCard);
+
+      for (JToggleButton playerCard : humanCardLabels) pnlHumanHand.add(playerCard);
+      validate();
+      repaint();
+
    }
 
    static class GUICard {
