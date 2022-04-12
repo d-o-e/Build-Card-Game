@@ -147,10 +147,14 @@ public class CardGameModel {
       for (int i = 0; i < getHand(0).getNumCards(); i++) {
          compHand[i] = new Card(getHand(0).inspectCard(i));
       }
+      System.err.println("Computer hand : ");
+      for (Card card : compHand) {
+         System.err.print(" "+ card + " ");
+      }
       return compHand;
    }
 
-   private int[] getRankValuesIndexes(Card[] cards) {
+   private int[] getRankValueIndexes(Card[] cards) {
       char[] charValues = new char[cards.length];
       for (int i = 0; i < charValues.length; i++) {
          if (cards[i] == null) charValues[i] = 'X';
@@ -163,29 +167,32 @@ public class CardGameModel {
             if (Card.valueRanks[j] == charValues[i]) valueIndexes[i] = j;
          }
       }
+      System.err.println("value indexes are : ");
+      for (int values : valueIndexes) {
+         System.err.print(" "+values+" ");
+      }
       return valueIndexes;
    }
 
    public int[] lookForAMove() {
       // TODO: 4/12/2022 fix move find
-      int[] stackIndexes = getRankValuesIndexes(cardsOnStacks);
       int[] possibleMoves = new int[2];
-
-      for (int index : stackIndexes) {
-         if (index == 0) {
-            possibleMoves[1] = index;
+      int[] stackIndexes = getRankValueIndexes(cardsOnStacks);
+      for (int i = 0; i < stackIndexes.length; i++) {
+         if (stackIndexes[i] == 0) {
             possibleMoves[0] = Assign6.random.nextInt(getHand(0).getNumCards());
+            possibleMoves[1] = i;
             return possibleMoves;
          }
       }
 
-      int[] cardIndexes = getRankValuesIndexes(getComputerCardsArray());
+      int[] cardIndexes = getRankValueIndexes(getComputerCardsArray());
 
       for (int i = 0; i < stackIndexes.length; i++) {
          for (int j = 0; j < cardIndexes.length; j++) {
             if (rule(cardIndexes[j], stackIndexes[i])) {
-               possibleMoves[0] = i;
-               possibleMoves[1] = j;
+               possibleMoves[0] = j;
+               possibleMoves[1] = i;
                return possibleMoves;
             }
          }
