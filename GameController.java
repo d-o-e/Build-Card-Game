@@ -60,9 +60,10 @@ class GameController {
       int[] indexes = model.lookForAMove();
       System.out.println("can play" + indexes[0] + " to " + indexes[1]);
       // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
-      if (indexes == null) model.updatePassCounter(0);
+      if (indexes[0] == -1) model.updatePassCounter(0);
       playCardTo(0, indexes[0], indexes[1]);
-
+      view.validate();
+      view.repaint();
    }
 
    public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
@@ -128,6 +129,7 @@ class GameController {
             if (stackIcon.toString().contains("BK") ||
                   model.isAValidMove(firstButtonIndex, stackIndex)) {
                playCardTo(1, firstButtonIndex, stackIndex);
+               computerPlay();
             }
             firstButtonIndex = -1;
             view.deselectAllButtons();

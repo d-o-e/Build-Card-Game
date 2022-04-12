@@ -182,7 +182,7 @@ public class CardTableView extends JFrame {
 
    public void addToPlayerHand(int playerID, Card deal) {
       if (playerID == 0) {
-         pnlComputerHand.add(new JButton(GUICard.getBackCardIcon()));
+         pnlComputerHand.add(new JLabel(GUICard.getBackCardIcon()));
       } else {
          JToggleButton newCard = makeToggleButtonFromCard(deal);
          pnlHumanHand.add(newCard, numCardsPerHand - 1);

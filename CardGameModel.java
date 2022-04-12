@@ -167,13 +167,14 @@ public class CardGameModel {
    }
 
    public int[] lookForAMove() {
+      // TODO: 4/12/2022 fix move find
       int[] stackIndexes = getRankValuesIndexes(cardsOnStacks);
       int[] possibleMoves = new int[2];
 
       for (int index : stackIndexes) {
          if (index == 0) {
-            possibleMoves[0] = Assign6.random.nextInt(getHand(0).getNumCards());
             possibleMoves[1] = index;
+            possibleMoves[0] = Assign6.random.nextInt(getHand(0).getNumCards());
             return possibleMoves;
          }
       }

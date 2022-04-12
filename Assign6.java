@@ -17,7 +17,6 @@ class Assign6 {
       SuitMatch.initView();
 //      playerFirst = SuitMatch.playerStarts(); // ask user for who will start
 //      if (!playerFirst) SuitMatch.computerPlay();
-      SuitMatch.computerPlay();
       SuitMatch.startTimer();
    }
 }
