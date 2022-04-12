@@ -10,7 +10,7 @@ import java.io.File;
 
 public class CardTableView extends JFrame {
    public GameController controller;
-   private final int WINDOW_WIDTH = 860;
+   private final int WINDOW_WIDTH = 900;
    private final int WINDOW_HEIGHT = 540;
    private final int numCardsPerHand = CardGameModel.MAX_CARD_COUNT;
    private final int numPlayers = CardGameModel.NUM_PLAYERS;
@@ -180,11 +180,15 @@ public class CardTableView extends JFrame {
       playedCardStacks[index] = playedCard;
    }
 
-   public void addToPlayerHand(Card deal) {
-      JToggleButton newCard = makeToggleButtonFromCard(deal);
-      pnlHumanHand.add(newCard, numCardsPerHand - 1);
-      humanCardLabels[numCardsPerHand - 1] = newCard;
-      updateScoreboard();
+   public void addToPlayerHand(int playerID, Card deal) {
+      if (playerID == 0) {
+         pnlComputerHand.add(new JButton(GUICard.getBackCardIcon()));
+      } else {
+         JToggleButton newCard = makeToggleButtonFromCard(deal);
+         pnlHumanHand.add(newCard, numCardsPerHand - 1);
+         humanCardLabels[numCardsPerHand - 1] = newCard;
+         updateScoreboard();
+      }
    }
 
    public void removeFromComputerHandPanel() {

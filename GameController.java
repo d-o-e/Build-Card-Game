@@ -58,7 +58,7 @@ class GameController {
     */
    public void computerPlay() {
       int[] indexes = model.lookForAMove();
-      System.out.println("canplay" + indexes);
+      System.out.println("can play" + indexes[0] + " to " + indexes[1]);
       // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
       if (indexes == null) model.updatePassCounter(0);
       playCardTo(0, indexes[0], indexes[1]);
@@ -66,11 +66,10 @@ class GameController {
    }
 
    public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
-      // TODO: 4/11/2022 add validation method
       Card cardToPlay = model.playCard(playerID, cardIndex);
-      view.addToPlayArea(playerID, cardToPlay, indexTo);
       model.getCardsOnStacks()[indexTo] = cardToPlay;
-      if (cardsLeft() > 0) view.addToPlayerHand(model.dealACardTo(playerID));
+      view.addToPlayArea(playerID, cardToPlay, indexTo);
+      if (cardsLeft() > 0) view.addToPlayerHand(playerID, model.dealACardTo(playerID));
       return true;
    }
 
