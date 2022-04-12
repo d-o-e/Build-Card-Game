@@ -143,9 +143,10 @@ public class CardGameModel {
    }
 
    private Card[] getComputerCardsArray() {
-      Card[] compHand = new Card[getHand(0).getNumCards()];
-      for (int i = 0; i < getHand(0).getNumCards(); i++) {
-         compHand[i] = new Card(getHand(0).inspectCard(i));
+
+      Card[] compHand = new Card[handsOfPlayers[0].getNumCards()];
+      for (int i = 0; i < compHand.length; i++) {
+         compHand[i] = handsOfPlayers[0].inspectCard(i);
       }
       System.err.println("Computer hand : ");
       for (Card card : compHand) {
@@ -155,6 +156,8 @@ public class CardGameModel {
    }
 
    private int[] getRankValueIndexes(Card[] cards) {
+
+
       char[] charValues = new char[cards.length];
       for (int i = 0; i < charValues.length; i++) {
          if (cards[i] == null) charValues[i] = 'X';
@@ -187,19 +190,17 @@ public class CardGameModel {
       }
 
       int[] cardIndexes = getRankValueIndexes(getComputerCardsArray());
-
-      for (int i = 0; i < stackIndexes.length; i++) {
-         for (int j = 0; j < cardIndexes.length; j++) {
-            if (rule(cardIndexes[j], stackIndexes[i])) {
-               possibleMoves[0] = j;
-               possibleMoves[1] = i;
+      for (int i = 0; i < cardIndexes.length; i++) {
+         for (int j = 0; j < stackIndexes.length; j++) {
+            if (rule(cardIndexes[i], stackIndexes[j])) {
+               possibleMoves[0] = i;
+               possibleMoves[1] = j;
                return possibleMoves;
             }
          }
       }
       return null;
    }
-
 }
 
 class Card {
