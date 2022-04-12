@@ -13,11 +13,12 @@ class GameController {
    private CardTableView view;
    private boolean clockStopped = true;
    private GameTimer timer;
+   int doublePass = 0;
 
-   public GameController() {
+   GameController() {
    }
 
-   public GameController(CardGameModel model, CardTableView view) {
+   GameController(CardGameModel model, CardTableView view) {
       this.model = model;
       this.view = view;
       view.controller = this;
@@ -32,9 +33,13 @@ class GameController {
       int playerScore, computerScore;
       computerScore = model.getTotalScoreOfPlayer(0);
       playerScore = model.getTotalScoreOfPlayer(1);
-      StringBuilder winner = new StringBuilder("Winner is ");
-      winner.append((playerScore > computerScore) ? "Player" : "Computer")
-            .append('\n').append("Player : ").append(playerScore)
+      StringBuilder winner = new StringBuilder();
+      if (computerScore == playerScore) winner.append("It is a draw");
+      else {
+         winner.append("Winner is ")
+               .append((playerScore < computerScore) ? "Player" : "Computer");
+      }
+      winner.append('\n').append("Player : ").append(playerScore)
             .append(" Computer : ").append(computerScore).append('\n');
       JOptionPane scoreboard = new JOptionPane(winner,
             JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
@@ -44,7 +49,7 @@ class GameController {
    }
 
 
-   public Card findCard(int playerID, int cardIndex) {
+   Card findCard(int playerID, int cardIndex) {
       return model.getHand(playerID).inspectCard(cardIndex);
    }
 
@@ -56,25 +61,29 @@ class GameController {
     * Computer plays a card and tries to match the suit,
     * if it can't will play random card
     */
-   public void computerPlay() {
+   void computerPlay() {
       int[] indexes = model.lookForAMove();
+      if (indexes == null) {
+         doublePass++;
+         playerPassed(0);
+         System.err.println("Comp pass");
+         return;
+      }
       System.out.println("can play" + indexes[0] + " to " + indexes[1]);
-      // TODO: 4/10/2022 computer Logical play cardIndex to be played random for now
-      if (indexes[0] == -1) model.updatePassCounter(0);
-      playCardTo(0, indexes[0], indexes[1]);
-      view.validate();
-      view.repaint();
+      if (playCardTo(0, indexes[0], indexes[1])) doublePass = 0;
+      view.updateScoreboard();
    }
 
-   public boolean playCardTo(int playerID, int cardIndex, int indexTo) {
+   boolean playCardTo(int playerID, int cardIndex, int indexTo) {
       Card cardToPlay = model.playCard(playerID, cardIndex);
-      model.getCardsOnStacks()[indexTo] = cardToPlay;
+      model.addToPlayStack(cardToPlay, indexTo);
       view.addToPlayArea(playerID, cardToPlay, indexTo);
       if (cardsLeft() > 0) view.addToPlayerHand(playerID, model.dealACardTo(playerID));
+      else endTheGame();
       return true;
    }
 
-   public void initView() {
+   void initView() {
       view.setupTheLayoutAndPanels();
    }
 
@@ -84,23 +93,35 @@ class GameController {
       timer.start();
    }
 
-   public void flipClockSwitch() {
+   void flipClockSwitch() {
       clockStopped = !clockStopped;
    }
 
    void playerPassed(int playerID) {
+      if (doublePass == 2) {
+         dealNewCardsToStacks();
+         System.err.println("deal new stacks");
+         doublePass = 0;
+      } else if (playerID != 0) {
+         computerPlay();
+      }
       model.updatePassCounter(playerID);
+   }
+
+   private void dealNewCardsToStacks() {
+      model.refreshCardStack();
+      view.refreshStacks(model.getCardsOnStacks());
    }
 
    int retrieveScore(int playerID) {
       return model.getTotalScoreOfPlayer(playerID);
    }
 
-   public int cardsLeft() {
+   int cardsLeft() {
       return model.cardsLeftInDeck();
    }
 
-   public CardButtonListener getCardListener() {
+   CardButtonListener getCardListener() {
       return new CardButtonListener();
    }
 
@@ -129,6 +150,7 @@ class GameController {
             if (stackIcon.toString().contains("BK") ||
                   model.isAValidMove(firstButtonIndex, stackIndex)) {
                playCardTo(1, firstButtonIndex, stackIndex);
+               doublePass = 0;
                computerPlay();
             }
             firstButtonIndex = -1;

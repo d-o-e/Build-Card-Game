@@ -8,8 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class CardTableView extends JFrame {
-   public GameController controller;
+class CardTableView extends JFrame {
+   GameController controller;
    private final int WINDOW_WIDTH = 900;
    private final int WINDOW_HEIGHT = 540;
    private final int numCardsPerHand = CardGameModel.MAX_CARD_COUNT;
@@ -20,11 +20,11 @@ public class CardTableView extends JFrame {
    //Label arrays that represent cards on window
    private JLabel[] computerLabels, scoreboardLabels;
    private JLabel timerDisplay;
-   public JButton[] playedCardStacks;
+   JButton[] playedCardStacks;
    private JToggleButton[] humanCardLabels;
    private JButton timerButton, passRoundButton;
 
-   public CardTableView() {
+   CardTableView() {
       controller = new GameController();
       GUICard.loadCardIcons();
       // establish main frame in which program will run
@@ -58,7 +58,7 @@ public class CardTableView extends JFrame {
       return answer == 0;
    }
 
-   public void setupTheLayoutAndPanels() {
+   void setupTheLayoutAndPanels() {
       setLayout(new GridBagLayout());
       GridBagConstraints gridConstraints = new GridBagConstraints();
       gridConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -125,20 +125,20 @@ public class CardTableView extends JFrame {
       scoreboardLabels[4] = new JLabel("Player Passed:");
       scoreboardLabels[5] = new JLabel(String.valueOf(controller.retrieveScore(1)));
 
+      // ADD LABELS TO PANELS -----------------------------------------
+
       passRoundButton.addActionListener(action -> {
+         controller.doublePass++;
          controller.playerPassed(1); // 1 : is player
          updateScoreboard();
-         // TODO: 4/10/2022 computer plays
       });
 
-      // ADD LABELS TO PANELS -----------------------------------------
       timerButton.addActionListener(action -> {
          controller.flipClockSwitch();
          toggleTimerButton();
       });
 
       pnlTimer.add(timerButton);
-//      timerDisplay.setBorder(new EmptyBorder(0, 5, 0, 0));
       pnlTimer.add(timerDisplay);
 
       for (JButton playedCard : playedCardStacks) pnlPlayArea.add(playedCard);
@@ -157,19 +157,19 @@ public class CardTableView extends JFrame {
       this.setVisible(true);
    }
 
-   public JButton makeButtonFromCard(Card card) {
+   JButton makeButtonFromCard(Card card) {
       JButton newStackButton = new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
       newStackButton.addActionListener(controller.getCardListener());
       return newStackButton;
    }
 
-   public JToggleButton makeToggleButtonFromCard(Card card) {
+   JToggleButton makeToggleButtonFromCard(Card card) {
       JToggleButton newCardButton = new JToggleButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
       newCardButton.addActionListener(controller.getCardListener());
       return newCardButton;
    }
 
-   public void addToPlayArea(int playerID, Card card, int index) {
+   void addToPlayArea(int playerID, Card card, int index) {
       if (pnlPlayArea == null) return;
       JButton playedCard = makeButtonFromCard(card);
       if (playerID == 0) removeFromComputerHandPanel();
@@ -180,7 +180,7 @@ public class CardTableView extends JFrame {
       playedCardStacks[index] = playedCard;
    }
 
-   public void addToPlayerHand(int playerID, Card deal) {
+   void addToPlayerHand(int playerID, Card deal) {
       if (playerID == 0) {
          pnlComputerHand.add(new JLabel(GUICard.getBackCardIcon()));
       } else {
@@ -191,12 +191,12 @@ public class CardTableView extends JFrame {
       }
    }
 
-   public void removeFromComputerHandPanel() {
+   void removeFromComputerHandPanel() {
       pnlComputerHand.remove(computerLabels.length - 1);
       computerLabels[computerLabels.length - 1] = null;
    }
 
-   public void removeFromPlayerHand(int index) {
+   void removeFromPlayerHand(int index) {
       pnlHumanHand.remove(index);
       humanCardLabels[index] = null;
       System.arraycopy(humanCardLabels, index + 1, humanCardLabels, index, humanCardLabels.length - index - 1);
@@ -227,13 +227,13 @@ public class CardTableView extends JFrame {
       return -1;
    }
 
-   public void toggleTimerButton() {
+   void toggleTimerButton() {
       timerButton.setText(timerButton.getText().equals("START") ? "STOP" : "START");
       timerButton.validate();
       timerButton.repaint();
    }
 
-   public void updateScoreboard() {
+   void updateScoreboard() {
       JLabel computerPassCount = (JLabel) pnlScoreBoard.getComponent(1);
       JLabel cardsLeftInTheDeck = (JLabel) pnlScoreBoard.getComponent(3);
       JLabel playerPassCount = (JLabel) pnlScoreBoard.getComponent(5);
@@ -243,7 +243,7 @@ public class CardTableView extends JFrame {
       playerPassCount.setText(String.valueOf(controller.retrieveScore(1)));
    }
 
-   public void deselectAllButtons() {
+   void deselectAllButtons() {
       if (humanCardLabels != null) {
          for (int i = 0; i < controller.playerCardsLeft(1); i++) {
             humanCardLabels[i].setSelected(false);
@@ -251,8 +251,19 @@ public class CardTableView extends JFrame {
       }
    }
 
-   public void updateTimer(String timerDuration) {
+   void updateTimer(String timerDuration) {
       timerDisplay.setText(timerDuration);
+   }
+
+   void refreshStacks(Card[] cardsOnStacks) {
+      JButton[] stack = new JButton[cardsOnStacks.length];
+      for (int i = 0; i < stack.length; i++) {
+         stack[i] = makeButtonFromCard(cardsOnStacks[i]);
+         pnlPlayArea.remove(i);
+         pnlPlayArea.add(stack[i], i);
+         playedCardStacks[i] = stack[i];
+      }
+
    }
 
    static class GUICard {
@@ -261,7 +272,7 @@ public class CardTableView extends JFrame {
       static boolean iconsLoaded = false;
       private static Icon iconBack;
 
-      public GUICard() {
+      GUICard() {
          if (!iconsLoaded) loadCardIcons();
       }
 
@@ -297,7 +308,7 @@ public class CardTableView extends JFrame {
          iconsLoaded = true;
       }
 
-      static public Icon getBackCardIcon() {
+      static Icon getBackCardIcon() {
          return new ImageIcon(iconBack.toString());
       }
 

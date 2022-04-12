@@ -20,7 +20,7 @@ public class CardGameModel {
    private int[] passCount;
 
    // constructor overload/default for game like bridge
-   public CardGameModel() {
+   CardGameModel() {
       int k;
       passCount = new int[NUM_PLAYERS];
       handsOfPlayers = new Hand[NUM_PLAYERS];
@@ -32,7 +32,7 @@ public class CardGameModel {
       // prepare deck and shuffle
    }
 
-   public void newGame() {
+   void newGame() {
       // clear the hands
       for (Hand hand : handsOfPlayers) hand.resetHand();
 
@@ -49,7 +49,7 @@ public class CardGameModel {
       deal();
    }
 
-   public void deal() {
+   void deal() {
       // returns false if not enough cards, but deals what it can
       int k, j;
 
@@ -73,7 +73,7 @@ public class CardGameModel {
       passCount[playerID]++;
    }
 
-   public Hand getHand(int k) {
+   Hand getHand(int k) {
       // on error return automatic empty hand
       if (k < 0 || k >= NUM_PLAYERS) {
          return new Hand();
@@ -104,25 +104,25 @@ public class CardGameModel {
       return handsOfPlayers[playerIndex].takeCard(deck.dealCard());
    }
 
-   public int getTotalScoreOfPlayer(int playerID) {
+   int getTotalScoreOfPlayer(int playerID) {
       return passCount[playerID];
    }
 
-   public int cardsLeftInDeck() {
+   int cardsLeftInDeck() {
       return deck.getNumCards();
    }
 
-   public Card[] getCardsOnStacks() {
-      return cardsOnStacks;
+   void addToPlayStack(Card card, int indexTo) {
+      cardsOnStacks[indexTo] = card;
    }
 
-   public Card dealACardTo(int playerID) {
+   Card dealACardTo(int playerID) {
       Card dealtCard = deck.dealCard();
       handsOfPlayers[playerID].takeCard(dealtCard);
       return dealtCard;
    }
 
-   public boolean isAValidMove(int firstButtonIndex, int stackIndex) {
+   boolean isAValidMove(int firstButtonIndex, int stackIndex) {
       char cardOnStack = cardsOnStacks[stackIndex].getValue();
       char playedCard = getHand(1).inspectCard(firstButtonIndex).getValue();
       int stackValueIndex, cardValueIndex;
@@ -132,10 +132,10 @@ public class CardGameModel {
          if (playedCard == Card.valueRanks[i]) cardValueIndex = i;
       }
       // TODO: 4/11/2022 more rules can be determined
-      return rule(cardValueIndex, stackValueIndex);
+      return gameRule(cardValueIndex, stackValueIndex);
    }
 
-   private boolean rule(int cardValueIndex, int stackValueIndex) {
+   private boolean gameRule(int cardValueIndex, int stackValueIndex) {
       if (cardValueIndex == 0 || stackValueIndex == 0) return true; //joker
       else if (stackValueIndex == (cardValueIndex + 1) || stackValueIndex == (cardValueIndex - 1)) return true;
       else if (stackValueIndex == 13 && cardValueIndex == 1) return true;
@@ -152,6 +152,7 @@ public class CardGameModel {
       for (Card card : compHand) {
          System.err.print(" "+ card + " ");
       }
+      System.err.println();
       return compHand;
    }
 
@@ -174,10 +175,11 @@ public class CardGameModel {
       for (int values : valueIndexes) {
          System.err.print(" "+values+" ");
       }
+      System.err.println();
       return valueIndexes;
    }
 
-   public int[] lookForAMove() {
+   int[] lookForAMove() {
       // TODO: 4/12/2022 fix move find
       int[] possibleMoves = new int[2];
       int[] stackIndexes = getRankValueIndexes(cardsOnStacks);
@@ -192,7 +194,7 @@ public class CardGameModel {
       int[] cardIndexes = getRankValueIndexes(getComputerCardsArray());
       for (int i = 0; i < cardIndexes.length; i++) {
          for (int j = 0; j < stackIndexes.length; j++) {
-            if (rule(cardIndexes[i], stackIndexes[j])) {
+            if (gameRule(cardIndexes[i], stackIndexes[j])) {
                possibleMoves[0] = i;
                possibleMoves[1] = j;
                return possibleMoves;
@@ -200,6 +202,18 @@ public class CardGameModel {
          }
       }
       return null;
+   }
+
+   public void refreshCardStack() {
+      for (int i = 0; i < cardsOnStacks.length; i++) {
+         cardsOnStacks[i] = deck.dealCard();
+      }
+   }
+
+   Card[] getCardsOnStacks() {
+      Card[] stack = new Card[cardsOnStacks.length];
+      System.arraycopy(cardsOnStacks, 0, stack, 0, cardsOnStacks.length);
+      return stack;
    }
 }
 
