@@ -12,8 +12,8 @@ public class CardTableView extends JFrame {
    public GameController controller;
    private final int WINDOW_WIDTH = 860;
    private final int WINDOW_HEIGHT = 540;
-   private final int numCardsPerHand = 7;
-   private final int numPlayers = 2;
+   private final int numCardsPerHand = CardGameModel.MAX_CARD_COUNT;
+   private final int numPlayers = CardGameModel.NUM_PLAYERS;
 
    // CarTable Panels
    private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea, pnlScoreBoard, pnlTimer, pnlTimeAndScore;
@@ -23,7 +23,6 @@ public class CardTableView extends JFrame {
    public JButton[] playedCardStacks;
    private JToggleButton[] humanCardLabels;
    private JButton timerButton, passRoundButton;
-   private int time = 0;
 
    public CardTableView() {
       controller = new GameController();
@@ -180,8 +179,10 @@ public class CardTableView extends JFrame {
    }
 
    public void addToPlayerHand(Card deal) {
-
-      updateTable();
+      JToggleButton newCard = makeToggleButtonFromCard(deal);
+      pnlHumanHand.add(newCard, numCardsPerHand - 1);
+      humanCardLabels[numCardsPerHand - 1] = newCard;
+      updateScoreboard();
    }
 
    public void removeFromComputerHandPanel() {
@@ -225,16 +226,6 @@ public class CardTableView extends JFrame {
       timerButton.repaint();
    }
 
-   public void incrementTimer() {
-      time++;
-      int min = time / 60;
-      int seconds = time - (60 * min);
-      String timerDuration = String.format("%02d", min) + " : " + String.format("%02d", seconds);
-      timerDisplay.setText(timerDuration);
-      timerDisplay.validate();
-      timerDisplay.repaint();
-   }
-
    public void updateScoreboard() {
       JLabel computerPassCount = (JLabel) pnlScoreBoard.getComponent(1);
       JLabel cardsLeftInTheDeck = (JLabel) pnlScoreBoard.getComponent(3);
@@ -253,22 +244,8 @@ public class CardTableView extends JFrame {
       }
    }
 
-   public void updateTable() {
-
-      for (int i = 0; i < controller.playerCardsLeft(0); i++) {
-         computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
-      }
-
-      for (int i = 0; i < controller.playerCardsLeft(1); i++) {
-         humanCardLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
-      }
-
-      for (JLabel computerCard : computerLabels) pnlComputerHand.add(computerCard);
-
-      for (JToggleButton playerCard : humanCardLabels) pnlHumanHand.add(playerCard);
-      validate();
-      repaint();
-
+   public void updateTimer(String timerDuration) {
+      timerDisplay.setText(timerDuration);
    }
 
    static class GUICard {

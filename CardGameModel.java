@@ -1,14 +1,14 @@
-import java.util.Random;
-
 /**
  * Deniz Erisgen
  * Assignment 6 Phase 3
  * IDE: IntelliJ
  **/
 
+import java.util.Random;
+
 public class CardGameModel {
    public static final int MAX_CARD_COUNT = 7;
-   private int numPlayers = 2;
+   public static final int NUM_PLAYERS = 2;
    private Card[] cardsOnStacks = new Card[3]; //cards on the table
    private int numPacks = 1;            // # standard 52-card packs per deck
    private int numJokersPerPack = 2; // if 2 per pack & 3 packs per deck, get 6
@@ -22,11 +22,11 @@ public class CardGameModel {
    // constructor overload/default for game like bridge
    public CardGameModel() {
       int k;
-      passCount = new int[numPlayers];
-      handsOfPlayers = new Hand[numPlayers];
+      passCount = new int[NUM_PLAYERS];
+      handsOfPlayers = new Hand[NUM_PLAYERS];
       // allocate
       unusedCardsPerPack = new Card[numUnusedCardsPerPack];
-      for (k = 0; k < numPlayers; k++) handsOfPlayers[k] = new Hand();
+      for (k = 0; k < NUM_PLAYERS; k++) handsOfPlayers[k] = new Hand();
       deck = new Deck();
       newGame();
       // prepare deck and shuffle
@@ -55,11 +55,11 @@ public class CardGameModel {
 
       // clear all hands
       if (handsOfPlayers != null) {
-         for (j = 0; j < numPlayers; j++) handsOfPlayers[j].resetHand();
+         for (j = 0; j < NUM_PLAYERS; j++) handsOfPlayers[j].resetHand();
       }
 
       for (k = 0; k < numCardsPerHand; k++) {
-         for (j = 0; j < numPlayers; j++) takeCard(j);
+         for (j = 0; j < NUM_PLAYERS; j++) takeCard(j);
       }
       if (handsOfPlayers != null) for (Hand hand : handsOfPlayers) hand.sort();
    }
@@ -75,7 +75,7 @@ public class CardGameModel {
 
    public Hand getHand(int k) {
       // on error return automatic empty hand
-      if (k < 0 || k >= numPlayers) {
+      if (k < 0 || k >= NUM_PLAYERS) {
          return new Hand();
       }
       return handsOfPlayers[k];
@@ -83,7 +83,7 @@ public class CardGameModel {
 
    Card playCard(int playerIndex, int cardIndex) {
       // returns bad card if either argument is bad
-      if (playerIndex < 0 || playerIndex > numPlayers - 1 ||
+      if (playerIndex < 0 || playerIndex > NUM_PLAYERS - 1 ||
             cardIndex < 0 || cardIndex > numCardsPerHand - 1) {
          //Creates a card that does not work
          return new Card('M', Card.Suit.spades);
@@ -95,7 +95,7 @@ public class CardGameModel {
 
    private boolean takeCard(int playerIndex) {
       // returns false if either argument is bad
-      if (playerIndex < 0 || playerIndex > numPlayers - 1 || deck == null)
+      if (playerIndex < 0 || playerIndex > NUM_PLAYERS - 1 || deck == null)
          return false;
 
       // Are there enough Cards?
@@ -122,6 +122,15 @@ public class CardGameModel {
       return dealtCard;
    }
 
+   public boolean isAValidMove(int firstButtonIndex, int stackIndex) {
+
+      Card playedCard = getHand(1).inspectCard(firstButtonIndex);
+      Card cardOnStack = cardsOnStacks[stackIndex];
+      System.out.println(playedCard.getValue());
+      System.out.println(cardOnStack.getValue());
+      return true;
+
+   }
 }
 
 class Card {

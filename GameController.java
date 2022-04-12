@@ -70,18 +70,9 @@ class GameController {
       if (playerID == 0) view.removeFromComputerHandPanel();
       Card cardToPlay = model.playCard(playerID, cardIndex);
       view.addToPlayArea(cardToPlay, indexTo);
-      // TODO: 4/11/2022 move ito the playCard func
       model.getCardsOnStacks()[indexTo] = cardToPlay;
-      refillHands();
-      view.updateTable();
+      if (cardsLeft() > 0) view.addToPlayerHand(model.dealACardTo(playerID));
       return true;
-   }
-
-   private void refillHands() {
-      if (cardsLeft() > 0 && playerCardsLeft(0) < CardGameModel.MAX_CARD_COUNT)
-         view.addToPlayerHand(model.dealACardTo(0));
-      if (cardsLeft() > 0 && playerCardsLeft(1) < CardGameModel.MAX_CARD_COUNT)
-         view.addToPlayerHand(model.dealACardTo(1));
    }
 
    public void initView() {
@@ -118,10 +109,6 @@ class GameController {
       return model.getHand(playerID).getNumCards();
    }
 
-   private void checkForValidMove(int firstButtonIndex, int stackIndex) {
-
-   }
-
    /**
     * Inner Action Listener class to listen for card selections
     */
@@ -138,10 +125,11 @@ class GameController {
                firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
             }
          } else if (CardButtonListener.firstButtonIndex != -1) {
-            JButton x = (JButton) event.getSource();
-            int stackIndex = view.findIndexOfCard(x.getIcon(), true);
-            checkForValidMove(firstButtonIndex, stackIndex);
-            playCardTo(1, firstButtonIndex, stackIndex);
+            Icon stackIcon = ((JButton) event.getSource()).getIcon();
+            int stackIndex = view.findIndexOfCard(stackIcon, true);
+            if (stackIcon.toString().contains("BK") || model.isAValidMove(firstButtonIndex, stackIndex)) {
+               playCardTo(1, firstButtonIndex, stackIndex);
+            }
             firstButtonIndex = -1;
             view.deselectAllButtons();
          }
@@ -161,10 +149,19 @@ class GameController {
          }
       }
 
+      private void incrementTimer() {
+         time++;
+         int min = time / 60;
+         int seconds = time - (60 * min);
+         String timerDuration = String.format("%02d", min) + " : "
+               + String.format("%02d", seconds);
+         view.updateTimer(timerDuration);
+      }
+
       @Override
       public synchronized void run() {
          while (true) {
-            if (!clockStopped) view.incrementTimer();
+            if (!clockStopped) incrementTimer();
             doNothing();
          }
       }
