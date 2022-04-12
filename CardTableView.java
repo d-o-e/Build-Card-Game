@@ -1,7 +1,5 @@
 /**
- * Deniz Erisgen
- * Assignment 6 Phase 3
- * IDE: IntelliJ
+ * @author Deniz Erisgen ©
  **/
 
 import javax.swing.*;
@@ -16,11 +14,12 @@ class CardTableView extends JFrame {
    private final int numPlayers = CardGameModel.NUM_PLAYERS;
 
    // CarTable Panels
-   private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea, pnlScoreBoard, pnlTimer, pnlTimeAndScore;
+   private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea,
+         pnlScoreBoard, pnlTimer, pnlTimeAndScore;
    //Label arrays that represent cards on window
    private JLabel[] computerLabels, scoreboardLabels;
    private JLabel timerDisplay;
-   JButton[] playedCardStacks;
+   private JButton[] playedCardStacks;
    private JToggleButton[] humanCardLabels;
    private JButton timerButton, passRoundButton;
 
@@ -169,6 +168,13 @@ class CardTableView extends JFrame {
       return newCardButton;
    }
 
+   /**
+    * A player play a card from hand
+    *
+    * @param playerID (int) reps. 0:comp. 1:player
+    * @param card     to be played
+    * @param index    (int) stack index on play area
+    */
    void addToPlayArea(int playerID, Card card, int index) {
       if (pnlPlayArea == null) return;
       JButton playedCard = makeButtonFromCard(card);
@@ -180,6 +186,12 @@ class CardTableView extends JFrame {
       playedCardStacks[index] = playedCard;
    }
 
+   /**
+    * Add a card to player hand
+    *
+    * @param playerID (int) reps. 0:comp. 1:player
+    * @param deal     (card) that was dealt
+    */
    void addToPlayerHand(int playerID, Card deal) {
       if (playerID == 0) {
          pnlComputerHand.add(new JLabel(GUICard.getBackCardIcon()));
@@ -255,6 +267,11 @@ class CardTableView extends JFrame {
       timerDisplay.setText(timerDuration);
    }
 
+   /**
+    * Adds new cards to the stacks
+    *
+    * @param cardsOnStacks new cards to be placed on stacks
+    */
    void refreshStacks(Card[] cardsOnStacks) {
       JButton[] stack = new JButton[cardsOnStacks.length];
       for (int i = 0; i < stack.length; i++) {
@@ -263,7 +280,6 @@ class CardTableView extends JFrame {
          pnlPlayArea.add(stack[i], i);
          playedCardStacks[i] = stack[i];
       }
-
    }
 
    static class GUICard {

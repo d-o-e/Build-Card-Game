@@ -1,18 +1,19 @@
-
+/**
+ * @author Deniz Erisgen ©
+ **/
 
 import java.util.Random;
 
-class Assign6 {
+class BuildGame {
    static boolean playerFirst = false; //who goes first?
    static Random random = new Random(System.currentTimeMillis());
 
    public static void main(String[] args) {
       CardGameModel model = new CardGameModel();
       CardTableView view = new CardTableView();
-      GameController SuitMatch = new GameController(model, view);
-      SuitMatch.initView();
-      playerFirst = SuitMatch.playerStarts(); // ask user for who will start
-      if (!playerFirst) SuitMatch.computerPlay();
-      SuitMatch.startTimer();
+      GameController BuildGame = new GameController(model, view);
+      playerFirst = BuildGame.playerStarts(); // ask user for who will start
+      if (!playerFirst) BuildGame.computerPlay();
+      BuildGame.startTimer();
    }
 }

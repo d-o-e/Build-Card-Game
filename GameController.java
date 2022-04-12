@@ -1,7 +1,5 @@
 /**
- * Deniz Erisgen
- * Assignment 6 Phase 3
- * IDE: IntelliJ
+ * @author Deniz Erisgen ©
  **/
 
 import javax.swing.*;
@@ -13,7 +11,7 @@ class GameController {
    private CardTableView view;
    private boolean clockStopped = true;
    private GameTimer timer;
-   int doublePass = 0;
+   int doublePass = 0; // to keep track of double pass
 
    GameController() {
    }
@@ -23,6 +21,7 @@ class GameController {
       this.view = view;
       view.controller = this;
       timer = new GameTimer();
+      view.setupTheLayoutAndPanels();
    }
 
    /**
@@ -48,43 +47,55 @@ class GameController {
       System.exit(0);
    }
 
-
+   /**
+    * Retrieves card from a player at an index
+    *
+    * @param playerID  (int) 1 for player 0 for computer
+    * @param cardIndex index of the card in player hand
+    * @return a clone of the card at index
+    */
    Card findCard(int playerID, int cardIndex) {
       return model.getHand(playerID).inspectCard(cardIndex);
    }
 
+   /**
+    * Retrieves choice from view
+    *
+    * @return true if choice is yes
+    */
    boolean playerStarts() {
       return view.askForStart();
    }
 
    /**
-    * Computer plays a card and tries to match the suit,
-    * if it can't will play random card
+    * Computer tries to play a round
     */
    void computerPlay() {
       int[] indexes = model.lookForAMove();
       if (indexes == null) {
          doublePass++;
          playerPassed(0);
-         System.err.println("Comp pass");
          return;
       }
-      System.out.println("can play" + indexes[0] + " to " + indexes[1]);
       if (playCardTo(0, indexes[0], indexes[1])) doublePass = 0;
       view.updateScoreboard();
    }
 
+   /**
+    * Plays card from a player to a stack
+    *
+    * @param playerID  (int) 1 for player 0 for computer
+    * @param cardIndex (int) index of card in hand
+    * @param indexTo   (int) stack index to place the card
+    * @return true if it can
+    */
    boolean playCardTo(int playerID, int cardIndex, int indexTo) {
       Card cardToPlay = model.playCard(playerID, cardIndex);
       model.addToPlayStack(cardToPlay, indexTo);
       view.addToPlayArea(playerID, cardToPlay, indexTo);
       if (cardsLeft() > 0) view.addToPlayerHand(playerID, model.dealACardTo(playerID));
-      else endTheGame();
+      else endTheGame(); // no cards left in deck ends the game
       return true;
-   }
-
-   void initView() {
-      view.setupTheLayoutAndPanels();
    }
 
    void startTimer() {
@@ -97,10 +108,14 @@ class GameController {
       clockStopped = !clockStopped;
    }
 
+   /**
+    * Player pass a round
+    *
+    * @param playerID (int) 1 for player 0 for computer
+    */
    void playerPassed(int playerID) {
       if (doublePass == 2) {
          dealNewCardsToStacks();
-         System.err.println("deal new stacks");
          doublePass = 0;
       } else if (playerID != 0) {
          computerPlay();
@@ -113,6 +128,12 @@ class GameController {
       view.refreshStacks(model.getCardsOnStacks());
    }
 
+   /**
+    * Gets the player score
+    *
+    * @param playerID (int) 1 for player 0 for computer
+    * @return (int) total score of player
+    */
    int retrieveScore(int playerID) {
       return model.getTotalScoreOfPlayer(playerID);
    }
@@ -164,6 +185,9 @@ class GameController {
    class GameTimer extends Thread {
       private int time = 0;
 
+      /**
+       * Sleep for 1 second
+       */
       private void doNothing() {
          try {
             Thread.sleep(1000);
@@ -172,6 +196,9 @@ class GameController {
          }
       }
 
+      /**
+       * Increment time and updates timer display
+       */
       private void incrementTimer() {
          time++;
          int min = time / 60;

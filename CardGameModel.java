@@ -1,12 +1,10 @@
 /**
- * Deniz Erisgen
- * Assignment 6 Phase 3
- * IDE: IntelliJ
+ * @author Deniz Erisgen ©
  **/
 
 import java.util.Random;
 
-public class CardGameModel {
+class CardGameModel {
    public static final int MAX_CARD_COUNT = 7;
    public static final int NUM_PLAYERS = 2;
    private Card[] cardsOnStacks = new Card[3]; //cards on the table
@@ -19,7 +17,9 @@ public class CardGameModel {
    private Hand[] handsOfPlayers; // one Hand for each player
    private int[] passCount;
 
-   // constructor overload/default for game like bridge
+   /**
+    * constructor overload/default for game like bridge
+    */
    CardGameModel() {
       int k;
       passCount = new int[NUM_PLAYERS];
@@ -29,9 +29,11 @@ public class CardGameModel {
       for (k = 0; k < NUM_PLAYERS; k++) handsOfPlayers[k] = new Hand();
       deck = new Deck();
       newGame();
-      // prepare deck and shuffle
    }
 
+   /**
+    * Initialize a new game,shuffle and deal
+    */
    void newGame() {
       // clear the hands
       for (Hand hand : handsOfPlayers) hand.resetHand();
@@ -49,6 +51,9 @@ public class CardGameModel {
       deal();
    }
 
+   /**
+    * Deal cards to all hands and sort them
+    */
    void deal() {
       // returns false if not enough cards, but deals what it can
       int k, j;
@@ -67,12 +72,18 @@ public class CardGameModel {
    /**
     * updates the score for playerID
     *
-    * @param playerID
+    * @param playerID (int) 0 is Computer
     */
    public void updatePassCounter(int playerID) {
       passCount[playerID]++;
    }
 
+   /**
+    * Accesor for hand
+    *
+    * @param k hand number
+    * @return hand object
+    */
    Hand getHand(int k) {
       // on error return automatic empty hand
       if (k < 0 || k >= NUM_PLAYERS) {
@@ -81,27 +92,39 @@ public class CardGameModel {
       return handsOfPlayers[k];
    }
 
-   Card playCard(int playerIndex, int cardIndex) {
+   /**
+    * Plays the card from player at cardIndex
+    *
+    * @param playerID  player index (int)
+    * @param cardIndex card index (int)
+    * @return the card at index of if not found invalid card
+    */
+   Card playCard(int playerID, int cardIndex) {
       // returns bad card if either argument is bad
-      if (playerIndex < 0 || playerIndex > NUM_PLAYERS - 1 ||
+      if (playerID < 0 || playerID > NUM_PLAYERS - 1 ||
             cardIndex < 0 || cardIndex > numCardsPerHand - 1) {
          //Creates a card that does not work
          return new Card('M', Card.Suit.spades);
       }
-      // TODO: 4/11/2022 put it into the stacks
       // return the card played
-      return handsOfPlayers[playerIndex].playCard(cardIndex);
+      return handsOfPlayers[playerID].playCard(cardIndex);
    }
 
-   private boolean takeCard(int playerIndex) {
+   /**
+    * Player takes a card
+    *
+    * @param playerID that rep. player
+    * @return true if succeeds
+    */
+   private boolean takeCard(int playerID) {
       // returns false if either argument is bad
-      if (playerIndex < 0 || playerIndex > NUM_PLAYERS - 1 || deck == null)
+      if (playerID < 0 || playerID > NUM_PLAYERS - 1 || deck == null)
          return false;
 
       // Are there enough Cards?
       if (deck.getNumCards() <= 0) return false;
 
-      return handsOfPlayers[playerIndex].takeCard(deck.dealCard());
+      return handsOfPlayers[playerID].takeCard(deck.dealCard());
    }
 
    int getTotalScoreOfPlayer(int playerID) {
@@ -112,16 +135,35 @@ public class CardGameModel {
       return deck.getNumCards();
    }
 
+   /**
+    * Adds card to table stack
+    *
+    * @param card    to be added
+    * @param indexTo (int) index of stack
+    */
    void addToPlayStack(Card card, int indexTo) {
       cardsOnStacks[indexTo] = card;
    }
 
+   /**
+    * Deal a card to player
+    *
+    * @param playerID (int) rep. the reciver
+    * @return card dealt
+    */
    Card dealACardTo(int playerID) {
       Card dealtCard = deck.dealCard();
       handsOfPlayers[playerID].takeCard(dealtCard);
       return dealtCard;
    }
 
+   /**
+    * Checks if the planned move is valid
+    *
+    * @param firstButtonIndex (int) index of card planning to play
+    * @param stackIndex       (int) index of stack planning to place
+    * @return true if it is a valid move
+    */
    boolean isAValidMove(int firstButtonIndex, int stackIndex) {
       char cardOnStack = cardsOnStacks[stackIndex].getValue();
       char playedCard = getHand(1).inspectCard(firstButtonIndex).getValue();
@@ -135,6 +177,12 @@ public class CardGameModel {
       return gameRule(cardValueIndex, stackValueIndex);
    }
 
+   /***
+    * Principal rule of the game
+    * @param cardValueIndex (int) index of card played in value array
+    * @param stackValueIndex (int) index of card on stack in value array
+    * @return true if conforms requirements
+    */
    private boolean gameRule(int cardValueIndex, int stackValueIndex) {
       if (cardValueIndex == 0 || stackValueIndex == 0) return true; //joker
       else if (stackValueIndex == (cardValueIndex + 1) || stackValueIndex == (cardValueIndex - 1)) return true;
@@ -143,22 +191,20 @@ public class CardGameModel {
    }
 
    private Card[] getComputerCardsArray() {
-
       Card[] compHand = new Card[handsOfPlayers[0].getNumCards()];
       for (int i = 0; i < compHand.length; i++) {
          compHand[i] = handsOfPlayers[0].inspectCard(i);
       }
-      System.err.println("Computer hand : ");
-      for (Card card : compHand) {
-         System.err.print(" "+ card + " ");
-      }
-      System.err.println();
       return compHand;
    }
 
+   /**
+    * Calculates value index of cards in a card array
+    *
+    * @param cards array
+    * @return Array of ints with value index
+    */
    private int[] getRankValueIndexes(Card[] cards) {
-
-
       char[] charValues = new char[cards.length];
       for (int i = 0; i < charValues.length; i++) {
          if (cards[i] == null) charValues[i] = 'X';
@@ -171,21 +217,21 @@ public class CardGameModel {
             if (Card.valueRanks[j] == charValues[i]) valueIndexes[i] = j;
          }
       }
-      System.err.println("value indexes are : ");
-      for (int values : valueIndexes) {
-         System.err.print(" "+values+" ");
-      }
-      System.err.println();
       return valueIndexes;
    }
 
+   /**
+    * Look for a move that obey game rules
+    *
+    * @return int array size 2 with first:card index, second:stack index.
+    * If no moves returns null
+    */
    int[] lookForAMove() {
-      // TODO: 4/12/2022 fix move find
       int[] possibleMoves = new int[2];
       int[] stackIndexes = getRankValueIndexes(cardsOnStacks);
       for (int i = 0; i < stackIndexes.length; i++) {
          if (stackIndexes[i] == 0) {
-            possibleMoves[0] = Assign6.random.nextInt(getHand(0).getNumCards());
+            possibleMoves[0] = BuildGame.random.nextInt(getHand(0).getNumCards());
             possibleMoves[1] = i;
             return possibleMoves;
          }
@@ -204,9 +250,14 @@ public class CardGameModel {
       return null;
    }
 
+   /**
+    * Deals new cards to the stacks
+    */
    public void refreshCardStack() {
-      for (int i = 0; i < cardsOnStacks.length; i++) {
-         cardsOnStacks[i] = deck.dealCard();
+      if (cardsLeftInDeck() >= cardsOnStacks.length) {
+         for (int i = 0; i < cardsOnStacks.length; i++) {
+            cardsOnStacks[i] = deck.dealCard();
+         }
       }
    }
 
@@ -216,6 +267,7 @@ public class CardGameModel {
       return stack;
    }
 }
+
 
 class Card {
    public static char[] valueRanks = {
