@@ -268,7 +268,6 @@ class CardGameModel {
    }
 }
 
-
 class Card {
    public static char[] valueRanks = {
          'X', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A'
@@ -473,7 +472,6 @@ class Hand {
    public void sort() {
       Card.arraySort(myCards, numCards);
    }
-
 }
 
 class Deck {
