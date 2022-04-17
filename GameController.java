@@ -1,7 +1,5 @@
 /**
- * Deniz Erisgen
- * Assignment 6 Phase 2
- * IDE: IntelliJ
+ * @author Deniz Erisgen ©
  **/
 
 import javax.swing.*;
@@ -13,15 +11,17 @@ class GameController {
    private CardTableView view;
    private boolean clockStopped = true;
    private GameTimer timer;
+   int doublePass = 0; // to keep track of double pass
 
-   public GameController() {
+   GameController() {
    }
 
-   public GameController(CardGameModel model, CardTableView view) {
+   GameController(CardGameModel model, CardTableView view) {
       this.model = model;
       this.view = view;
       view.controller = this;
       timer = new GameTimer();
+      view.setupTheLayoutAndPanels();
    }
 
    /**
@@ -32,14 +32,14 @@ class GameController {
       int playerScore, computerScore;
       computerScore = model.getTotalScoreOfPlayer(0);
       playerScore = model.getTotalScoreOfPlayer(1);
-      StringBuilder winner = new StringBuilder("Winner is ");
-      winner.append((playerScore > computerScore) ? "Player" : "Computer");
-      winner.append('\n');
-      winner.append("Player : ").append(playerScore).append("   Computer : ");
-      winner.append(computerScore).append('\n');
-      winner.append("Matched Suits: \n");
-      winner.append(model.getWinningCardsString());
-
+      StringBuilder winner = new StringBuilder();
+      if (computerScore == playerScore) winner.append("It is a draw");
+      else {
+         winner.append("Winner is ")
+               .append((playerScore < computerScore) ? "Player" : "Computer");
+      }
+      winner.append('\n').append("Player : ").append(playerScore)
+            .append(" Computer : ").append(computerScore).append('\n');
       JOptionPane scoreboard = new JOptionPane(winner,
             JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION);
       JDialog dialog = scoreboard.createDialog("Game Over");
@@ -47,92 +47,147 @@ class GameController {
       System.exit(0);
    }
 
-   public CardButtonListener getListener() {
-      return new CardButtonListener();
-   }
-
-   public Card findCard(int playerID, int cardIndex) {
+   /**
+    * Retrieves card from a player at an index
+    *
+    * @param playerID  (int) 1 for player 0 for computer
+    * @param cardIndex index of the card in player hand
+    * @return a clone of the card at index
+    */
+   Card findCard(int playerID, int cardIndex) {
       return model.getHand(playerID).inspectCard(cardIndex);
    }
 
+   /**
+    * Retrieves choice from view
+    *
+    * @return true if choice is yes
+    */
    boolean playerStarts() {
       return view.askForStart();
    }
 
    /**
-    * Computer plays a card and tries to match the suit,
-    * if it can't will play random card
+    * Computer tries to play a round
     */
-   public void computerPlay() {
-      Hand compHand = model.getHand(0);
-      int cardIndex = Assign6.random.nextInt(compHand.getNumCards());
-      if (model.playedCards[1] != null) {
-         for (int i = 0; i < compHand.getNumCards(); i++) {
-            if (compHand.inspectCard(i).getSuit() == model.playedCards[1].getSuit()) {
-               cardIndex = i;
-            }
-         }
+   void computerPlay() {
+      int[] indexes = model.lookForAMove();
+      if (indexes == null) {
+         doublePass++;
+         playerPassed(0);
+         return;
       }
-
-      model.playedCards[0] = playCard(0, cardIndex);
-      view.addToPlayArea(model.playedCards[0], 0);
-      view.removeFromComputerHand(0);
-      if (Assign6.playerFirst) {
-         model.updateScore(0);
-         if (view.getCardCountFromComputerPnl() == 0) endTheGame();
-      }
-      view.validate();
-      view.repaint();
+      if (playCardTo(0, indexes[0], indexes[1])) doublePass = 0;
+      view.updateScoreboard();
    }
 
-   public Card playCard(int playerID, int cardIndex) {
-      return model.playCard(playerID, cardIndex);
+   /**
+    * Plays card from a player to a stack
+    *
+    * @param playerID  (int) 1 for player 0 for computer
+    * @param cardIndex (int) index of card in hand
+    * @param indexTo   (int) stack index to place the card
+    * @return true if it can
+    */
+   boolean playCardTo(int playerID, int cardIndex, int indexTo) {
+      Card cardToPlay = model.playCard(playerID, cardIndex);
+      model.addToPlayStack(cardToPlay, indexTo);
+      view.addToPlayArea(playerID, cardToPlay, indexTo);
+      if (cardsLeft() > 0) view.addToPlayerHand(playerID, model.dealACardTo(playerID));
+      else endTheGame(); // no cards left in deck ends the game
+      return true;
    }
 
-   public void initView() {
-      view.setupTheLayoutAndPanels();
-   }
-
-   public void startTimer() {
+   void startTimer() {
       clockStopped = false;
       view.toggleTimerButton();
       timer.start();
    }
 
-   public void flipClockSwitch() {
+   void flipClockSwitch() {
       clockStopped = !clockStopped;
+   }
+
+   /**
+    * Player pass a round
+    *
+    * @param playerID (int) 1 for player 0 for computer
+    */
+   void playerPassed(int playerID) {
+      if (doublePass == 2) {
+         dealNewCardsToStacks();
+         doublePass = 0;
+      } else if (playerID != 0) {
+         computerPlay();
+      }
+      model.updatePassCounter(playerID);
+   }
+
+   private void dealNewCardsToStacks() {
+      model.refreshCardStack();
+      view.refreshStacks(model.getCardsOnStacks());
+   }
+
+   /**
+    * Gets the player score
+    *
+    * @param playerID (int) 1 for player 0 for computer
+    * @return (int) total score of player
+    */
+   int retrieveScore(int playerID) {
+      return model.getTotalScoreOfPlayer(playerID);
+   }
+
+   int cardsLeft() {
+      return model.cardsLeftInDeck();
+   }
+
+   CardButtonListener getCardListener() {
+      return new CardButtonListener();
+   }
+
+   int playerCardsLeft(int playerID) {
+      return model.getHand(playerID).getNumCards();
    }
 
    /**
     * Inner Action Listener class to listen for card selections
     */
    class CardButtonListener implements ActionListener {
+      static int firstButtonIndex = -1;
 
       @Override
       public void actionPerformed(ActionEvent event) {
-         JButton clickedCard = (JButton) event.getSource();
-         if (clickedCard == null) return;
-         int cardIndex = view.findIndexOfCard(clickedCard.getIcon());
-         view.addToPlayArea(findCard(1, cardIndex), 1);
-         model.playedCards[1] = model.playCard(1, cardIndex);
-         view.removeFromPlayerHand(cardIndex);
-
-         if (!Assign6.playerFirst) {
-            model.updateScore(1);
-            if (view.getCardCountFromPlayerPnl() == 0) endTheGame();
+         if (event.getSource() instanceof JToggleButton) {
+            if (CardButtonListener.firstButtonIndex != -1) {
+               view.deselectAllButtons();
+               firstButtonIndex = -1;
+            } else {
+               firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
+            }
+         } else if (CardButtonListener.firstButtonIndex != -1) {
+            Icon stackIcon = ((JButton) event.getSource()).getIcon();
+            int stackIndex = view.findIndexOfCard(stackIcon, true);
+            if (stackIcon.toString().contains("BK") ||
+                  model.isAValidMove(firstButtonIndex, stackIndex)) {
+               playCardTo(1, firstButtonIndex, stackIndex);
+               doublePass = 0;
+               computerPlay();
+            }
+            firstButtonIndex = -1;
+            view.deselectAllButtons();
          }
-         computerPlay();
          view.validate();
          view.repaint();
       }
-
    }
 
    class GameTimer extends Thread {
-      public GameTimer() {
-         super();
-      }
+      private int time = 0;
 
+      /**
+       * Sleep for 1 second
+       */
       private void doNothing() {
          try {
             Thread.sleep(1000);
@@ -141,10 +196,22 @@ class GameController {
          }
       }
 
+      /**
+       * Increment time and updates timer display
+       */
+      private void incrementTimer() {
+         time++;
+         int min = time / 60;
+         int seconds = time - (60 * min);
+         String timerDuration = String.format("%02d", min) + " : "
+               + String.format("%02d", seconds);
+         view.updateTimer(timerDuration);
+      }
+
       @Override
       public synchronized void run() {
          while (true) {
-            if (!clockStopped) view.incrementTimer();
+            if (!clockStopped) incrementTimer();
             doNothing();
          }
       }

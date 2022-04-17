@@ -1,28 +1,30 @@
+/**
+ * @author Deniz Erisgen ©
+ **/
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class CardTableView extends JFrame {
-   static final int WINDOW_WIDTH = 820;
-   static final int WINDOW_HEIGHT = 600;
-   static final int MAX_CARDS_PER_HAND = 8;
-   static final int MAX_PLAYERS = 3;
-   public GameController controller;
-   // CarTable Panels
-   private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea, pnlTimer;
-   //Label arrays that represent cards on window
-   private JLabel[] computerLabels, playedCardLabels, playLabelText;
-   private JLabel timerDisplay;
-   private JButton[] humanLabels;
-   private int numCardsPerHand = 7;
-   private int numPlayers = 2;
-   private JButton timerButton;
-   private int time = 0;
+class CardTableView extends JFrame {
+   GameController controller;
+   private final int WINDOW_WIDTH = 900;
+   private final int WINDOW_HEIGHT = 540;
+   private final int numCardsPerHand = CardGameModel.MAX_CARD_COUNT;
+   private final int numPlayers = CardGameModel.NUM_PLAYERS;
 
-   public CardTableView() {
+   // CarTable Panels
+   private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea,
+         pnlScoreBoard, pnlTimer, pnlTimeAndScore;
+   //Label arrays that represent cards on window
+   private JLabel[] computerLabels, scoreboardLabels;
+   private JLabel timerDisplay;
+   private JButton[] playedCardStacks;
+   private JToggleButton[] humanCardLabels;
+   private JButton timerButton, passRoundButton;
+
+   CardTableView() {
       controller = new GameController();
-      if (numCardsPerHand < 1 || numPlayers > MAX_PLAYERS ||
-            numCardsPerHand > MAX_CARDS_PER_HAND) return;
       GUICard.loadCardIcons();
       // establish main frame in which program will run
       setTitle("Suits Match Card Table");
@@ -32,9 +34,11 @@ public class CardTableView extends JFrame {
       setLocationRelativeTo(null);
 
       computerLabels = new JLabel[numCardsPerHand];
-      playLabelText = new JLabel[numPlayers];
-      playedCardLabels = new JLabel[numPlayers];
-      humanLabels = new JButton[numCardsPerHand];
+      scoreboardLabels = new JLabel[(numPlayers + 1) * 2];
+      playedCardStacks = new JButton[3];
+      humanCardLabels = new JToggleButton[numCardsPerHand];
+      passRoundButton = new JButton("PASS");
+
       timerDisplay = new JLabel();
       timerButton = new JButton("START");
    }
@@ -53,7 +57,7 @@ public class CardTableView extends JFrame {
       return answer == 0;
    }
 
-   public void setupTheLayoutAndPanels() {
+   void setupTheLayoutAndPanels() {
       setLayout(new GridBagLayout());
       GridBagConstraints gridConstraints = new GridBagConstraints();
       gridConstraints.fill = GridBagConstraints.HORIZONTAL;
@@ -70,25 +74,32 @@ public class CardTableView extends JFrame {
       gridConstraints.gridx = 0;
       gridConstraints.gridy = 1;
       gridConstraints.ipady = 20;
-      pnlPlayArea = new JPanel(new GridLayout(2, 2));
+      pnlPlayArea = new JPanel(new GridLayout(1, 3));
       pnlPlayArea.setBorder(BorderFactory.createTitledBorder("Playing Area"));
       add(pnlPlayArea, gridConstraints);
 
-      // Bottom JFrame : Player Hand
+      // Timer Display and Button
+      pnlTimeAndScore = new JPanel(new FlowLayout(FlowLayout.CENTER));
+      pnlTimer = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+      pnlTimer.setBorder(BorderFactory.createTitledBorder("Time"));
+      pnlTimeAndScore.add(pnlTimer);
+
+      // Scoreboard area
+      pnlScoreBoard = new JPanel(new FlowLayout(FlowLayout.CENTER, 40, 5));
+      pnlScoreBoard.setBorder(BorderFactory.createTitledBorder("Scoreboard"));
+      pnlTimeAndScore.add(pnlScoreBoard);
+
       gridConstraints.gridx = 0;
       gridConstraints.gridy = 2;
       gridConstraints.ipady = 0;
+      add(pnlTimeAndScore, gridConstraints);
+
+      // Bottom JFrame : Player Hand
+      gridConstraints.gridx = 0;
+      gridConstraints.gridy = 3;
       pnlHumanHand = new JPanel(new FlowLayout(FlowLayout.CENTER));
       pnlHumanHand.setBorder(BorderFactory.createTitledBorder("Your Hand"));
       add(pnlHumanHand, gridConstraints);
-
-      gridConstraints.gridx = 0;
-      gridConstraints.gridy = 3;
-      gridConstraints.ipady = 0;
-      pnlTimer = new JPanel(new FlowLayout(FlowLayout.TRAILING));
-      pnlTimer.setSize(timerButton.getWidth() + timerDisplay.getWidth(), timerButton.getHeight());
-//      pnlTimer.setBorder(BorderFactory.createTitledBorder("Timer"));
-      add(pnlTimer, gridConstraints);
 
       // CREATE LABELS ----------------------------------------------------
       // Getting cards from hands and creating matching UI elements
@@ -96,39 +107,48 @@ public class CardTableView extends JFrame {
 
       for (int i = 0; i < numCardsPerHand; i++) {
          computerLabels[i] = new JLabel(GUICard.getBackCardIcon());
-         humanLabels[i] = makeButtonFromCard(controller.findCard(1, i));
-         humanLabels[i].addActionListener(controller.getListener());
+         humanCardLabels[i] = makeToggleButtonFromCard(controller.findCard(1, i));
       }
-      // initializing placeholder cards icons and labels
-      playedCardLabels[0] = new JLabel(GUICard.getBackCardIcon());
-      playedCardLabels[1] = new JLabel(GUICard.getBackCardIcon());
 
-      playLabelText[0] = new JLabel("Computer", JLabel.CENTER);
-      playLabelText[1] = new JLabel("Player", JLabel.CENTER);
+      // initializing placeholder cards icons and labels
+      for (int i = 0; i < playedCardStacks.length; i++) {
+         playedCardStacks[i] = new JButton(GUICard.getBackCardIcon());
+         playedCardStacks[i].addActionListener(controller.getCardListener());
+      }
+
+      // initializing Scoreboard labels
+      scoreboardLabels[0] = new JLabel("Computer Passed:");
+      scoreboardLabels[1] = new JLabel(String.valueOf(controller.retrieveScore(0)));
+      scoreboardLabels[2] = new JLabel("Cards left:");
+      scoreboardLabels[3] = new JLabel(String.valueOf(controller.cardsLeft()));
+      scoreboardLabels[4] = new JLabel("Player Passed:");
+      scoreboardLabels[5] = new JLabel(String.valueOf(controller.retrieveScore(1)));
 
       // ADD LABELS TO PANELS -----------------------------------------
-      pnlTimer.add(timerDisplay);
+
+      passRoundButton.addActionListener(action -> {
+         controller.doublePass++;
+         controller.playerPassed(1); // 1 : is player
+         updateScoreboard();
+      });
+
       timerButton.addActionListener(action -> {
          controller.flipClockSwitch();
          toggleTimerButton();
       });
+
       pnlTimer.add(timerButton);
+      pnlTimer.add(timerDisplay);
 
-      for (JLabel playedCard : playedCardLabels) {
-         pnlPlayArea.add(playedCard);
-      }
+      for (JButton playedCard : playedCardStacks) pnlPlayArea.add(playedCard);
 
-      for (JLabel playLabel : playLabelText) {
-         pnlPlayArea.add(playLabel);
-      }
+      for (JLabel scoreLabels : scoreboardLabels) pnlScoreBoard.add(scoreLabels);
 
-      for (JLabel computerCard : computerLabels) {
-         pnlComputerHand.add(computerCard);
-      }
+      pnlScoreBoard.add(passRoundButton);
 
-      for (JButton playerCard : humanLabels) {
-         pnlHumanHand.add(playerCard);
-      }
+      for (JLabel computerCard : computerLabels) pnlComputerHand.add(computerCard);
+
+      for (JToggleButton playerCard : humanCardLabels) pnlHumanHand.add(playerCard);
 
       pnlComputerHand.setPreferredSize(pnlComputerHand.getPreferredSize());
       pnlHumanHand.setPreferredSize(pnlHumanHand.getPreferredSize());
@@ -136,70 +156,130 @@ public class CardTableView extends JFrame {
       this.setVisible(true);
    }
 
-   public JLabel makeLabelFromCard(Card card) {
-      return new JLabel(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
-
+   JButton makeButtonFromCard(Card card) {
+      JButton newStackButton = new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      newStackButton.addActionListener(controller.getCardListener());
+      return newStackButton;
    }
 
-   public JButton makeButtonFromCard(Card card) {
-      return new JButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+   JToggleButton makeToggleButtonFromCard(Card card) {
+      JToggleButton newCardButton = new JToggleButton(GUICard.iconCards[GUICard.valueAsInt(card)][GUICard.suitAsInt(card)]);
+      newCardButton.addActionListener(controller.getCardListener());
+      return newCardButton;
    }
 
-   public void addToPlayArea(Card card, int index) {
+   /**
+    * A player play a card from hand
+    *
+    * @param playerID (int) reps. 0:comp. 1:player
+    * @param card     to be played
+    * @param index    (int) stack index on play area
+    */
+   void addToPlayArea(int playerID, Card card, int index) {
       if (pnlPlayArea == null) return;
+      JButton playedCard = makeButtonFromCard(card);
+      if (playerID == 0) removeFromComputerHandPanel();
+      else removeFromPlayerHand(findIndexOfCard(playedCard.getIcon(), false));
+
       pnlPlayArea.remove(index);
-      pnlPlayArea.add(makeLabelFromCard(card), index);
+      pnlPlayArea.add(playedCard, index);
+      playedCardStacks[index] = playedCard;
    }
 
-   public void removeFromComputerHand(int index) {
-      pnlComputerHand.remove(index);
+   /**
+    * Add a card to player hand
+    *
+    * @param playerID (int) reps. 0:comp. 1:player
+    * @param deal     (card) that was dealt
+    */
+   void addToPlayerHand(int playerID, Card deal) {
+      if (playerID == 0) {
+         pnlComputerHand.add(new JLabel(GUICard.getBackCardIcon()));
+      } else {
+         JToggleButton newCard = makeToggleButtonFromCard(deal);
+         pnlHumanHand.add(newCard, numCardsPerHand - 1);
+         humanCardLabels[numCardsPerHand - 1] = newCard;
+         updateScoreboard();
+      }
    }
 
-   public void removeFromPlayerHand(int index) {
+   void removeFromComputerHandPanel() {
+      pnlComputerHand.remove(computerLabels.length - 1);
+      computerLabels[computerLabels.length - 1] = null;
+   }
+
+   void removeFromPlayerHand(int index) {
       pnlHumanHand.remove(index);
-   }
-
-   public int getCardCountFromPlayerPnl() {
-      return pnlHumanHand.getComponents().length;
-   }
-
-   public int getCardCountFromComputerPnl() {
-      return pnlComputerHand.getComponents().length;
+      humanCardLabels[index] = null;
+      System.arraycopy(humanCardLabels, index + 1, humanCardLabels, index, humanCardLabels.length - index - 1);
+      humanCardLabels[humanCardLabels.length - 1] = null;
    }
 
    /**
     * Searches for cards icon in human buttons array
     *
-    * @param cardIcon icon of the card that was selected
+    * @param cardIcon      icon of the card that was selected
+    * @param searchInStack pass in true to seach in stack
     * @return index of the card, if not found returns -1
     */
-   int findIndexOfCard(Icon cardIcon) {
-      int foundIndex = -1;
-      for (int i = 0; i < humanLabels.length; i++) {
-         if (humanLabels[i].getIcon().equals(cardIcon)) {
-            foundIndex = i;
-            System.arraycopy(humanLabels, i + 1, humanLabels, i, humanLabels.length - foundIndex - 1);
-            humanLabels[humanLabels.length - 1] = null;
-            return foundIndex;
+   int findIndexOfCard(Icon cardIcon, boolean searchInStack) {
+      if (searchInStack) {
+         for (int i = 0; i < playedCardStacks.length; i++) {
+            if (playedCardStacks[i].getIcon().equals(cardIcon)) {
+               return i;
+            }
+         }
+      } else {
+         for (int i = 0; i < humanCardLabels.length; i++) {
+            if (humanCardLabels[i].getIcon().equals(cardIcon)) {
+               return i;
+            }
          }
       }
-      return foundIndex;
+      return -1;
    }
 
-   public void toggleTimerButton() {
+   void toggleTimerButton() {
       timerButton.setText(timerButton.getText().equals("START") ? "STOP" : "START");
       timerButton.validate();
       timerButton.repaint();
    }
 
-   public void incrementTimer() {
-      time++;
-      int min = time / 60;
-      int seconds = time - (60 * min);
-      String timerDuration = String.format("%02d", min) + " : " + String.format("%02d", seconds);
+   void updateScoreboard() {
+      JLabel computerPassCount = (JLabel) pnlScoreBoard.getComponent(1);
+      JLabel cardsLeftInTheDeck = (JLabel) pnlScoreBoard.getComponent(3);
+      JLabel playerPassCount = (JLabel) pnlScoreBoard.getComponent(5);
+
+      computerPassCount.setText(String.valueOf(controller.retrieveScore(0)));
+      cardsLeftInTheDeck.setText(String.valueOf(controller.cardsLeft()));
+      playerPassCount.setText(String.valueOf(controller.retrieveScore(1)));
+   }
+
+   void deselectAllButtons() {
+      if (humanCardLabels != null) {
+         for (int i = 0; i < controller.playerCardsLeft(1); i++) {
+            humanCardLabels[i].setSelected(false);
+         }
+      }
+   }
+
+   void updateTimer(String timerDuration) {
       timerDisplay.setText(timerDuration);
-      timerDisplay.validate();
-      timerDisplay.repaint();
+   }
+
+   /**
+    * Adds new cards to the stacks
+    *
+    * @param cardsOnStacks new cards to be placed on stacks
+    */
+   void refreshStacks(Card[] cardsOnStacks) {
+      JButton[] stack = new JButton[cardsOnStacks.length];
+      for (int i = 0; i < stack.length; i++) {
+         stack[i] = makeButtonFromCard(cardsOnStacks[i]);
+         pnlPlayArea.remove(i);
+         pnlPlayArea.add(stack[i], i);
+         playedCardStacks[i] = stack[i];
+      }
    }
 
    static class GUICard {
@@ -208,7 +288,7 @@ public class CardTableView extends JFrame {
       static boolean iconsLoaded = false;
       private static Icon iconBack;
 
-      public GUICard() {
+      GUICard() {
          if (!iconsLoaded) loadCardIcons();
       }
 
@@ -244,11 +324,7 @@ public class CardTableView extends JFrame {
          iconsLoaded = true;
       }
 
-      /*static public Icon getIcon(Card card) {
-         return iconCards[valueAsInt(card)][suitAsInt(card)];
-      }*/
-
-      static public Icon getBackCardIcon() {
+      static Icon getBackCardIcon() {
          return new ImageIcon(iconBack.toString());
       }
 
