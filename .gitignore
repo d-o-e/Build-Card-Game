@@ -610,3 +610,4 @@ local.properties
 # Spring Boot Tooling
 .sts4-cache/!/.idea/
 /BuildGame.iml
+/Build-Card-Game.iml

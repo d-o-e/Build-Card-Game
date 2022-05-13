@@ -158,6 +158,7 @@ class GameController {
 
       @Override
       public void actionPerformed(ActionEvent event) {
+         System.out.println(event.getSource().toString());
          if (event.getSource() instanceof JToggleButton) {
             if (CardButtonListener.firstButtonIndex != -1) {
                view.deselectAllButtons();

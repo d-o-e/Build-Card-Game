@@ -9,9 +9,6 @@ class CardGameModel {
    public static final int NUM_PLAYERS = 2;
    private Card[] cardsOnStacks = new Card[3]; //cards on the table
    private int numPacks = 1;            // # standard 52-card packs per deck
-   private int numJokersPerPack = 2; // if 2 per pack & 3 packs per deck, get 6
-   private int numUnusedCardsPerPack;  // # cards removed from each pack
-   private Card[] unusedCardsPerPack;
    private int numCardsPerHand = 7;        // # cards to deal each player
    private Deck deck;               // holds the initial full deck and gets
    private Hand[] handsOfPlayers; // one Hand for each player
@@ -25,7 +22,6 @@ class CardGameModel {
       passCount = new int[NUM_PLAYERS];
       handsOfPlayers = new Hand[NUM_PLAYERS];
       // allocate
-      unusedCardsPerPack = new Card[numUnusedCardsPerPack];
       for (k = 0; k < NUM_PLAYERS; k++) handsOfPlayers[k] = new Hand();
       deck = new Deck();
       newGame();
@@ -35,16 +31,8 @@ class CardGameModel {
     * Initialize a new game,shuffle and deal
     */
    void newGame() {
-      // clear the hands
-      for (Hand hand : handsOfPlayers) hand.resetHand();
-
       // restock the deck
       deck.init(numPacks);
-
-      // remove unused cards - can be checked and decrease number of cards
-      if (unusedCardsPerPack != null) {
-         for (Card unused : unusedCardsPerPack) deck.removeCard(unused);
-      }
 
       // shuffle the cards
       deck.shuffle();
@@ -60,12 +48,13 @@ class CardGameModel {
 
       // clear all hands
       if (handsOfPlayers != null) {
-         for (j = 0; j < NUM_PLAYERS; j++) handsOfPlayers[j].resetHand();
+         for (k = 0; k < NUM_PLAYERS; k++) handsOfPlayers[k].resetHand();
       }
 
       for (k = 0; k < numCardsPerHand; k++) {
          for (j = 0; j < NUM_PLAYERS; j++) takeCard(j);
       }
+
       if (handsOfPlayers != null) for (Hand hand : handsOfPlayers) hand.sort();
    }
 
@@ -567,27 +556,6 @@ class Deck {
     */
    public int getNumCards() {
       return topCard;
-   }
-
-   public boolean addCard(Card card) {
-      int count = 0;
-      for (Card tempCard : cards) {
-         if (tempCard.equals(card)) count++;
-         if (count > MAX_CARDS_PACK) return false;
-      }
-      cards[--topCard] = new Card(card);
-      return true;
-   }
-
-   public boolean removeCard(Card card) {
-      for (int i = 0; i < cards.length; i++) {
-         if (cards[i].equals(card)) {
-            System.arraycopy(cards, i + 1, cards, i, cards.length - i - 1);
-            cards[--topCard] = null;
-            return true;
-         }
-      }
-      return false;
    }
 
 }

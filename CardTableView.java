@@ -24,7 +24,7 @@ class CardTableView extends JFrame {
    private JButton timerButton, passRoundButton;
 
    CardTableView() {
-      controller = new GameController();
+//      controller = new GameController();
       GUICard.loadCardIcons();
       // establish main frame in which program will run
       setTitle("Suits Match Card Table");
