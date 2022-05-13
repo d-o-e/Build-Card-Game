@@ -170,12 +170,12 @@ class GameController {
             Icon stackIcon = ((JButton) event.getSource()).getIcon();
             int stackIndex = view.findIndexOfCard(stackIcon, true);
             if (stackIcon.toString().contains("BK") ||
-                  model.isAValidMove(firstButtonIndex, stackIndex)) {
-               playCardTo(1, firstButtonIndex, stackIndex);
+                  model.isAValidMove(CardButtonListener.firstButtonIndex, stackIndex)) {
+               playCardTo(1, CardButtonListener.firstButtonIndex, stackIndex);
                doublePass = 0;
                computerPlay();
             }
-            firstButtonIndex = -1;
+            CardButtonListener.firstButtonIndex = -1;
             view.deselectAllButtons();
          }
          view.validate();
