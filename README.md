@@ -4,7 +4,7 @@
 - Controller - Controller acts on both model and view. It controls the data flow into model object and updates the view
   whenever data changes. It keeps view and model separate.
 
-## Here is how the game works:
+## How the game works:
 
 - Take turns with the computer putting a card on one of three stacks in the middle of the table.
 - You can put on a card that is one value higher or one value lower. (6 on a 5, 4 on a 5, A on a K, JOKER goes
@@ -18,3 +18,5 @@
 - Display on the screen the number of "passes" on the screen for both the player and the computer.
 - Whoever has the least number of "passes", is the winner. Declare this at the end, when the deck is exhausted
   even though you will still have cards in your hand.
+
+### W.I.P : mac OS bug
