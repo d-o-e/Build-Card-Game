@@ -17,11 +17,13 @@ class CardTableView extends JFrame {
    private JPanel pnlComputerHand, pnlHumanHand, pnlPlayArea,
          pnlScoreBoard, pnlTimer, pnlTimeAndScore;
    //Label arrays that represent cards on window
-   private JLabel[] computerLabels, scoreboardLabels;
+   private final JLabel[] computerLabels;
+	private final JLabel[] scoreboardLabels;
    private JLabel timerDisplay;
-   private JButton[] playedCardStacks;
-   private JToggleButton[] humanCardLabels;
-   private JButton timerButton, passRoundButton;
+   private final JButton[] playedCardStacks;
+   private final JToggleButton[] humanCardLabels;
+   private final JButton timerButton;
+	private final JButton passRoundButton;
 
    CardTableView() {
       controller = new GameController();
@@ -30,7 +32,7 @@ class CardTableView extends JFrame {
       setTitle("Suits Match Card Table");
       setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
       setResizable(false);
-      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+      setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
       setLocationRelativeTo(null);
 
       computerLabels = new JLabel[numCardsPerHand];
@@ -153,7 +155,7 @@ class CardTableView extends JFrame {
       pnlComputerHand.setPreferredSize(pnlComputerHand.getPreferredSize());
       pnlHumanHand.setPreferredSize(pnlHumanHand.getPreferredSize());
       // show everything to the user
-      this.setVisible(true);
+      setVisible(true);
    }
 
    JButton makeButtonFromCard(Card card) {
@@ -285,11 +287,11 @@ class CardTableView extends JFrame {
    static class GUICard {
       // card Icons, A thru K + joker
       private static final Icon[][] iconCards = new ImageIcon[14][4];
-      static boolean iconsLoaded = false;
+      static boolean iconsLoaded;
       private static Icon iconBack;
 
       GUICard() {
-         if (!iconsLoaded) loadCardIcons();
+         if (!GUICard.iconsLoaded) GUICard.loadCardIcons();
       }
 
       /**
@@ -298,12 +300,12 @@ class CardTableView extends JFrame {
       static void loadCardIcons() {
          File[] iconFiles = new File("images/").listFiles();
          if (iconFiles == null) {
-            iconsLoaded = false;
+	         GUICard.iconsLoaded = false;
             return;
          }
          for (int i = 0; i < iconFiles.length; i++) {
             if (iconFiles[i].getName().equals("BK.gif")) {
-               iconBack = new ImageIcon("images/" + iconFiles[i].getName());
+	            GUICard.iconBack = new ImageIcon("images/" + iconFiles[i].getName());
                while (i < iconFiles.length - 1) {
                   iconFiles[i] = iconFiles[i + 1];
                   i++;
@@ -317,15 +319,15 @@ class CardTableView extends JFrame {
                row++;
                column = 0;
             }
-            iconCards[(row)][(column)] =
+	         GUICard.iconCards[(row)][(column)] =
                   new ImageIcon("images/" + iconFiles[iconCount++].getName());
             if (iconCount == iconFiles.length - 1) break;
          }
-         iconsLoaded = true;
+	      GUICard.iconsLoaded = true;
       }
 
       static Icon getBackCardIcon() {
-         return new ImageIcon(iconBack.toString());
+         return new ImageIcon(GUICard.iconBack.toString());
       }
 
       /**

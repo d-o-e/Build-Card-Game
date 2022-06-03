@@ -11,7 +11,7 @@ class GameController {
    private CardTableView view;
    private boolean clockStopped = true;
    private GameTimer timer;
-   int doublePass = 0; // to keep track of double pass
+   int doublePass; // to keep track of double pass
 
    GameController() {
    }
@@ -161,20 +161,20 @@ class GameController {
          if (event.getSource() instanceof JToggleButton) {
             if (CardButtonListener.firstButtonIndex != -1) {
                view.deselectAllButtons();
-               firstButtonIndex = -1;
+	            CardButtonListener.firstButtonIndex = -1;
             } else {
-               firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
+	            CardButtonListener.firstButtonIndex = view.findIndexOfCard(((JToggleButton) event.getSource()).getIcon(), false);
             }
          } else if (CardButtonListener.firstButtonIndex != -1) {
             Icon stackIcon = ((JButton) event.getSource()).getIcon();
             int stackIndex = view.findIndexOfCard(stackIcon, true);
             if (stackIcon.toString().contains("BK") ||
-                  model.isAValidMove(firstButtonIndex, stackIndex)) {
-               playCardTo(1, firstButtonIndex, stackIndex);
+                  model.isAValidMove(CardButtonListener.firstButtonIndex, stackIndex)) {
+               playCardTo(1, CardButtonListener.firstButtonIndex, stackIndex);
                doublePass = 0;
                computerPlay();
             }
-            firstButtonIndex = -1;
+	         CardButtonListener.firstButtonIndex = -1;
             view.deselectAllButtons();
          }
          view.validate();
@@ -183,7 +183,7 @@ class GameController {
    }
 
    class GameTimer extends Thread {
-      private int time = 0;
+      private int time;
 
       /**
        * Sleep for 1 second

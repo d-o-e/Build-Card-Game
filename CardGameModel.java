@@ -7,26 +7,26 @@ import java.util.Random;
 class CardGameModel {
    public static final int MAX_CARD_COUNT = 7;
    public static final int NUM_PLAYERS = 2;
-   private Card[] cardsOnStacks = new Card[3]; //cards on the table
-   private int numPacks = 1;            // # standard 52-card packs per deck
-   private int numJokersPerPack = 2; // if 2 per pack & 3 packs per deck, get 6
+   private final Card[] cardsOnStacks = new Card[3]; //cards on the table
+   private final int numPacks = 1;            // # standard 52-card packs per deck
+   private final int numJokersPerPack = 2; // if 2 per pack & 3 packs per deck, get 6
    private int numUnusedCardsPerPack;  // # cards removed from each pack
-   private Card[] unusedCardsPerPack;
-   private int numCardsPerHand = 7;        // # cards to deal each player
-   private Deck deck;               // holds the initial full deck and gets
-   private Hand[] handsOfPlayers; // one Hand for each player
-   private int[] passCount;
+   private final Card[] unusedCardsPerPack;
+   private final int numCardsPerHand = 7;        // # cards to deal each player
+   private final Deck deck;               // holds the initial full deck and gets
+   private final Hand[] handsOfPlayers; // one Hand for each player
+   private final int[] passCount;
 
    /**
     * constructor overload/default for game like bridge
     */
    CardGameModel() {
       int k;
-      passCount = new int[NUM_PLAYERS];
-      handsOfPlayers = new Hand[NUM_PLAYERS];
+      passCount = new int[CardGameModel.NUM_PLAYERS];
+      handsOfPlayers = new Hand[CardGameModel.NUM_PLAYERS];
       // allocate
       unusedCardsPerPack = new Card[numUnusedCardsPerPack];
-      for (k = 0; k < NUM_PLAYERS; k++) handsOfPlayers[k] = new Hand();
+      for (k = 0; k < CardGameModel.NUM_PLAYERS; k++) handsOfPlayers[k] = new Hand();
       deck = new Deck();
       newGame();
    }
@@ -60,11 +60,11 @@ class CardGameModel {
 
       // clear all hands
       if (handsOfPlayers != null) {
-         for (j = 0; j < NUM_PLAYERS; j++) handsOfPlayers[j].resetHand();
+         for (j = 0; j < CardGameModel.NUM_PLAYERS; j++) handsOfPlayers[j].resetHand();
       }
 
       for (k = 0; k < numCardsPerHand; k++) {
-         for (j = 0; j < NUM_PLAYERS; j++) takeCard(j);
+         for (j = 0; j < CardGameModel.NUM_PLAYERS; j++) takeCard(j);
       }
       if (handsOfPlayers != null) for (Hand hand : handsOfPlayers) hand.sort();
    }
@@ -86,7 +86,7 @@ class CardGameModel {
     */
    Hand getHand(int k) {
       // on error return automatic empty hand
-      if (k < 0 || k >= NUM_PLAYERS) {
+      if (k < 0 || k >= CardGameModel.NUM_PLAYERS) {
          return new Hand();
       }
       return handsOfPlayers[k];
@@ -101,7 +101,7 @@ class CardGameModel {
     */
    Card playCard(int playerID, int cardIndex) {
       // returns bad card if either argument is bad
-      if (playerID < 0 || playerID > NUM_PLAYERS - 1 ||
+      if (playerID < 0 || playerID > CardGameModel.NUM_PLAYERS - 1 ||
             cardIndex < 0 || cardIndex > numCardsPerHand - 1) {
          //Creates a card that does not work
          return new Card('M', Card.Suit.spades);
@@ -118,7 +118,7 @@ class CardGameModel {
     */
    private boolean takeCard(int playerID) {
       // returns false if either argument is bad
-      if (playerID < 0 || playerID > NUM_PLAYERS - 1 || deck == null)
+      if (playerID < 0 || playerID > CardGameModel.NUM_PLAYERS - 1 || deck == null)
          return false;
 
       // Are there enough Cards?
@@ -275,7 +275,7 @@ class Card {
 
    private char value;
    private Suit suit;
-   private boolean cardError;
+   private final boolean cardError;
 
    /**
     * default values: value = Ace, suit = spades
@@ -323,11 +323,11 @@ class Card {
     * @return String that represents the card
     */
    public String toString() {
-      return (this.cardError) ? "[ invalid ]" : this.value + " of " + this.suit;
+      return (cardError) ? "[ invalid ]" : value + " of " + suit;
    }
 
    private boolean isValid(char value, Suit suit) {
-      for (char valid : valueRanks) {
+      for (char valid : Card.valueRanks) {
          if (valid == value) return true;
       }
       return false;
@@ -367,8 +367,8 @@ class Card {
     * @return true if successful
     */
    public boolean equals(Card card) {
-      if (card == null || card.getCardError() || this.cardError) return false;
-      return (this.value == card.value && this.suit == card.suit);
+      if (card == null || card.getCardError() || cardError) return false;
+      return (value == card.value && suit == card.suit);
    }
 
    /**
@@ -377,8 +377,8 @@ class Card {
     * @return index as Int
     */
    private int rankValue() {
-      for (int i = 0; i < valueRanks.length; i++) {
-         if (valueRanks[i] == this.value) return i;
+      for (int i = 0; i < Card.valueRanks.length; i++) {
+         if (Card.valueRanks[i] == value) return i;
       }
       return 0;
    }
@@ -393,7 +393,7 @@ class Hand {
    private int numCards;
 
    public Hand() {
-      myCards = new Card[MAX_CARDS];
+      myCards = new Card[Hand.MAX_CARDS];
       numCards = 0;
    }
 
@@ -412,7 +412,7 @@ class Hand {
     * @return true if successful
     */
    public boolean takeCard(Card card) {
-      if (numCards < MAX_CARDS) {
+      if (numCards < Hand.MAX_CARDS) {
          myCards[numCards++] = new Card(card);
          return true;
       } else
@@ -482,11 +482,11 @@ class Deck {
    private int topCard; //index of top card = number of cards
 
    public Deck() {
-      if (masterPack == null) allocateMasterPack();
+      if (Deck.masterPack == null) Deck.allocateMasterPack();
    }
 
    public Deck(int numPacks) {
-      if (masterPack == null) allocateMasterPack();
+      if (Deck.masterPack == null) Deck.allocateMasterPack();
       init(numPacks);
    }
 
@@ -506,7 +506,7 @@ class Deck {
             count++;
          }
       }
-      masterPack = master;
+	   Deck.masterPack = master;
    }
 
    /**
@@ -554,11 +554,11 @@ class Deck {
    public void init(int numPacks) {
       if (numPacks == 0) numPacks = 1;
 
-      if (numPacks > MAX_CARDS_PACK) numPacks = 6;
+      if (numPacks > Deck.MAX_CARDS_PACK) numPacks = 6;
       topCard = (52 * numPacks) + 4; // add spots for jokers
       cards = new Card[topCard];
       for (int i = 0; i < topCard; i++) {
-         cards[i] = new Card(masterPack[(i % masterPack.length)]);
+         cards[i] = new Card(Deck.masterPack[(i % Deck.masterPack.length)]);
       }
    }
 
@@ -573,7 +573,7 @@ class Deck {
       int count = 0;
       for (Card tempCard : cards) {
          if (tempCard.equals(card)) count++;
-         if (count > MAX_CARDS_PACK) return false;
+         if (count > Deck.MAX_CARDS_PACK) return false;
       }
       cards[--topCard] = new Card(card);
       return true;
