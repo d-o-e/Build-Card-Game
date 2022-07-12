@@ -18,5 +18,3 @@
 - Display on the screen the number of "passes" on the screen for both the player and the computer.
 - Whoever has the least number of "passes", is the winner. Declare this at the end, when the deck is exhausted
   even though you will still have cards in your hand.
-
-### W.I.P : mac OS bug

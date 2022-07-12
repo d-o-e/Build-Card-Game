@@ -11,9 +11,9 @@ class BuildGame {
    public static void main(String[] args) {
       CardGameModel model = new CardGameModel();
       CardTableView view = new CardTableView();
-      GameController BuildGame = new GameController(model, view);
-	   BuildGame.playerFirst = BuildGame.playerStarts(); // ask user for who will start
-      if (!BuildGame.playerFirst) BuildGame.computerPlay();
-      BuildGame.startTimer();
+      GameController controller = new GameController(model, view);
+	   BuildGame.playerFirst = controller.playerStarts(); // ask user for who will start
+      if (!BuildGame.playerFirst) controller.computerPlay();
+      controller.startTimer();
    }
 }
